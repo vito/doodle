@@ -10,7 +10,9 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     text(c content)
 
   build(s: Anatomy::AST::Send) :=
-    send(s message, *(s arguments))
+    if(respond-to?(s message))
+      then: send(s message, *(s arguments))
+      else: raise("unknown document message `" + s message + "' at line " + s line to-s)
 
   italic(s) := em: build(s)
 
