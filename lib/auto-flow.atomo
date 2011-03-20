@@ -16,6 +16,15 @@ class(Anatomy::AutoFlow):
   split?(x: Nokogiri::XML::Text) :=
     paragraphs?(x content)
 
+  empty?(p) :=
+    p children empty? || p children all? (p):
+      p match:
+        Nokogiri::XML::Text ->
+          p content strip empty?
+
+        _ ->
+          false
+
   paragraphs?(str) := str include?("\n\n")
 
   define(flow):
@@ -36,7 +45,7 @@ class(Anatomy::AutoFlow):
         split?(c) && para -> do:
           ended? = false
           c content each-line("") (p):
-            para << p
+            para << p sub(r{\n*$}, "")
             c before(para)
             para =! Nokogiri::XML::Element new("p", @document)
             ended? =! p suffix?("\n\n")
@@ -51,7 +60,7 @@ class(Anatomy::AutoFlow):
           ended? = false
           c content each-line("") (p):
             para =! Nokogiri::XML::Element new("p", @document)
-            para << p
+            para << p sub(r{\n*$}, "")
             c before(para)
             ended? =! p suffix?("\n\n")
 
@@ -65,7 +74,7 @@ class(Anatomy::AutoFlow):
 
         -- hit a block element; recurse through it
         para -> do:
-          unless(para children empty?):
+          unless(empty?(para)):
             c before(para)
 
           para =! nil
@@ -73,7 +82,7 @@ class(Anatomy::AutoFlow):
           Anatomy::AutoFlow run(c)
 
     -- ended while still adding para; finish him!
-    when(para && !(para children empty?)):
+    when(para && !(empty?(para))):
       @document << para
 
     @document
