@@ -1,2 +1,2 @@
 class(Anatomy::Document < Nokogiri::HTML::Document):
-;
+  attr-accessor(#title, #tag)

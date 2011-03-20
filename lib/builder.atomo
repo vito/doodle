@@ -1,7 +1,11 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
-  define(run(t)):
+  define(run(t, flow? = true)):
     body: build(t)
-    Anatomy::AutoFlow flow(doc)
+
+    when(flow?):
+      Anatomy::AutoFlow flow(doc)
+
+    doc
 
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
@@ -13,6 +17,13 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     if(respond-to?(s message))
       then: send(s message, *(s arguments))
       else: raise("unknown document message `" + s message + "' at line " + s line to-s)
+
+  subrender(t, flow? = false) :=
+    class new run(t, flow?) at-css("body") inner-html
+
+  title(title, tag = title) := do:
+    @doc title = subrender(title)
+    @doc tag = subrender(tag)
 
   italic(s) := em: build(s)
 
