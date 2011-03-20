@@ -1,5 +1,6 @@
 import("lib/parser")
 import("lib/document")
+import("lib/auto-flow")
 
 tree = Anatomy::Parser parse-file("test.anatomy")
-p(Anatomy::Document new render(tree))
+p(Anatomy::AutoFlow run(Anatomy::Document new render(tree)))
