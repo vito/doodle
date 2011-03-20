@@ -1,1 +1,85 @@
-w{rubygems nokogiri} each (l): import(l)
+require("rubygems")
+require("nokogiri")
+
+-- parse with Nokogiri::HTML::DocumentFragment
+-- inline vs. block:
+--   - if it's Text, true
+--   - if it's an Element, do #description and #block?/#inline?
+
+-- loop through document contents, collecting contents for <p>
+-- while they're Text or inline
+
+module(Anatomy):;
+
+class(Anatomy::AutoFlow):
+  : self ; run(body) :=
+    new(body) flow
+
+  define(initialize(body: String)):
+    @document = Nokogiri::HTML::DocumentFragment parse(body)
+
+  define(initialize(@document)):
+    #ok
+
+  flow?(x: Nokogiri::XML::Text) :=
+    !(paragraphs?(x content))
+
+  flow?(x) := x description inline?
+
+  split?(x: Nokogiri::XML::Text) :=
+    paragraphs?(x content)
+
+  split?(_) := false
+
+  paragraphs?(str) := str include?("\n\n")
+
+  define(flow):
+    p(@document to-html)
+
+    para = nil
+    @document children each (c):
+      condition:
+        -- flowable; add to current paragraph
+        flow?(c) && para -> do:
+          c parent = para
+
+        -- flowable; start a new paragraph
+        flow?(c) -> do:
+          para =! Nokogiri::XML::Element new("p", @document)
+          c parent = para
+
+        -- chunk of text finishing current paragraph and
+        -- containing more
+        split?(c) && para -> do:
+          c content each-line("") (p):
+            para << Nokogiri::XML::Text new(p, @document)
+            c before(para)
+            para =! Nokogiri::XML::Element new("p", @document)
+
+          c remove
+
+        -- chunk of text containing multiple paragraphs
+        split?(c) -> do:
+          c content each-line("") (p):
+            para =! Nokogiri::XML::Element new("p", @document)
+            para << Nokogiri::XML::Text new(p, @document)
+            c before(para)
+
+          c remove
+
+        -- hit a block element; recurse through it
+        para -> do:
+          unless(para children empty?):
+            c before(para)
+
+          para =! nil
+
+          Anatomy::AutoFlow run(c)
+
+    -- ended while still adding para; finish him!
+    when(para):
+      @document << para
+
+    p(@document to-html)
+
+Anatomy::AutoFlow run("hello! <em>sup?</em>\n\ngoodbye.<div>nope</div>fizz\n\nbuzz <em>fizzle</em>")
