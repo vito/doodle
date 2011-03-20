@@ -1,74 +1,71 @@
-class(Anatomy::AutoFlow):
-  : self ; run(body) :=
-    new(body) flow to-html
+module(Anatomy::AutoFlow):
+  class(<< self):
+    flow?(x) := x description inline?
+    flow?(x: Nokogiri::XML::Text) :=
+      !(paragraphs?(x content))
 
-  define(initialize(body: String)):
-    @document = Nokogiri::HTML::DocumentFragment parse(body)
+    split?(_) := false
+    split?(x: Nokogiri::XML::Text) :=
+      paragraphs?(x content)
 
-  define(initialize(@document)):
-    #ok
+    paragraphs?(str) := str include?("\n\n")
 
-  flow?(x) := x description inline?
-  flow?(x: Nokogiri::XML::Text) :=
-    !(paragraphs?(x content))
+    empty?(p) :=
+      p children empty? || p children all? (p):
+        p match:
+          Nokogiri::XML::Text ->
+            p content strip empty?
 
-  split?(_) := false
-  split?(x: Nokogiri::XML::Text) :=
-    paragraphs?(x content)
+          _ ->
+            false
 
-  empty?(p) :=
-    p children empty? || p children all? (p):
-      p match:
-        Nokogiri::XML::Text ->
-          p content strip empty?
+    p-able?(doc) :=
+      doc description nil? ||
+        doc description sub-elements include?("p")
 
-        _ ->
-          false
+    define(flow(doc)):
+      para = nil
+      doc children each (c):
+        condition:
+          -- can't contain <p>; just recurse
+          !(p-able?(doc)) ->
+            flow(c)
 
-  paragraphs?(str) := str include?("\n\n")
+          -- flowable; add to current paragraph
+          flow?(c) && para -> do:
+            c parent = para
 
-  define(flow):
-    p-able? =
-      @document description nil? ||
-        @document description sub-elements include?("p")
+          -- flowable; start a new paragraph
+          flow?(c) -> do:
+            para =! Nokogiri::XML::Element new("p", doc)
+            c parent = para
 
-    para = nil
-    @document children each (c):
-      condition:
-        -- flowable; add to current paragraph
-        p-able? && flow?(c) && para -> do:
-          c parent = para
+          -- chunk of text containing multiple paragraphs
+          split?(c) -> do:
+            c content each-line("") (p):
+              para ||= Nokogiri::XML::Element new("p", doc)
+              para << p sub(r{\n\n*$}, "")
+              when(p suffix?("\n\n")):
+                c before(para)
+                para =! nil
 
-        -- flowable; start a new paragraph
-        p-able? && flow?(c) -> do:
-          para =! Nokogiri::XML::Element new("p", @document)
-          c parent = para
+            c remove
 
-        -- chunk of text containing multiple paragraphs
-        p-able? && split?(c) -> do:
-          c content each-line("") (p):
-            para ||= Nokogiri::XML::Element new("p", @document)
-            para << p sub(r{\n\n*$}, "")
-            when(p suffix?("\n\n")):
+          -- hit a block element; finish <p>, recurse
+          para -> do:
+            unless(empty?(para)):
               c before(para)
-              para =! nil
 
-          c remove
+            para =! nil
 
-        -- hit a block element; recurse through it
-        para -> do:
-          unless(empty?(para)):
-            c before(para)
+            flow(c)
 
-          para =! nil
+          -- hit a block element; recurse
+          otherwise ->
+            flow(c)
 
-          Anatomy::AutoFlow run(c)
+      -- ended while still adding para; finish him!
+      when(para && !(empty?(para))):
+        doc << para
 
-        otherwise ->
-          Anatomy::AutoFlow run(c)
-
-    -- ended while still adding para; finish him!
-    when(para && !(empty?(para))):
-      @document << para
-
-    @document
+      doc
