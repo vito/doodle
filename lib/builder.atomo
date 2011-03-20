@@ -16,4 +16,4 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
   italic(s) := em: build(s)
 
-  bold(a, b) := strong: build(a), text(", "), build(b)
+  bold(s) := strong: build(s)

@@ -2,7 +2,7 @@ hello!
 
 \italic{hi!}
 
-\bold{fizzbuzz}{2} {3}
+\bold{fizzbuzz} {nested}
 
 foo bar baz
 buzz
@@ -11,4 +11,10 @@ fizz buzz
 
 fiddlesticks
 
-\italic{foo}
+\italic{foo} a
+
+b c d e f g h i j
+
+k l m n
+
+o p \italic{q} r s
