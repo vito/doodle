@@ -17,3 +17,5 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
   italic(s) := em: build(s)
 
   bold(s) := strong: build(s)
+
+  verbatim(s) := pre: build(s)
