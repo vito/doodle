@@ -28,23 +28,27 @@ class(Anatomy::AutoFlow):
   paragraphs?(str) := str include?("\n\n")
 
   define(flow):
+    p-able? =
+      @document description nil? ||
+        @document description sub-elements include?("p")
+
     para = nil
     @document children each (c):
       condition:
         -- flowable; add to current paragraph
-        flow?(c) && para -> do:
+        p-able? && flow?(c) && para -> do:
           c parent = para
 
         -- flowable; start a new paragraph
-        flow?(c) -> do:
+        p-able? && flow?(c) -> do:
           para =! Nokogiri::XML::Element new("p", @document)
           c parent = para
 
         -- chunk of text containing multiple paragraphs
-        split?(c) -> do:
+        p-able? && split?(c) -> do:
           c content each-line("") (p):
             para ||= Nokogiri::XML::Element new("p", @document)
-            para << p sub(r{\n*$}, "")
+            para << p sub(r{\n\n*$}, "")
             when(p suffix?("\n\n")):
               c before(para)
               para =! nil
@@ -58,6 +62,9 @@ class(Anatomy::AutoFlow):
 
           para =! nil
 
+          Anatomy::AutoFlow run(c)
+
+        otherwise ->
           Anatomy::AutoFlow run(c)
 
     -- ended while still adding para; finish him!
