@@ -46,7 +46,9 @@ module(Anatomy::AutoFlow):
               para ||= Nokogiri::XML::Element new("p", doc)
               para << p sub(r{\n\n*$}, "")
               when(p suffix?("\n\n")):
-                c before(para)
+                unless(empty?(para)):
+                  c before(para)
+
                 para =! nil
 
             c remove
