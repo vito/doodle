@@ -1,19 +1,11 @@
 require("rubygems")
 require("nokogiri")
 
--- parse with Nokogiri::HTML::DocumentFragment
--- inline vs. block:
---   - if it's Text, true
---   - if it's an Element, do #description and #block?/#inline?
-
--- loop through document contents, collecting contents for <p>
--- while they're Text or inline
-
 module(Anatomy):;
 
 class(Anatomy::AutoFlow):
   : self ; run(body) :=
-    new(body) flow
+    new(body) flow to-html
 
   define(initialize(body: String)):
     @document = Nokogiri::HTML::DocumentFragment parse(body)
@@ -21,15 +13,13 @@ class(Anatomy::AutoFlow):
   define(initialize(@document)):
     #ok
 
+  flow?(x) := x description inline?
   flow?(x: Nokogiri::XML::Text) :=
     !(paragraphs?(x content))
 
-  flow?(x) := x description inline?
-
+  split?(_) := false
   split?(x: Nokogiri::XML::Text) :=
     paragraphs?(x content)
-
-  split?(_) := false
 
   paragraphs?(str) := str include?("\n\n")
 
@@ -51,19 +41,32 @@ class(Anatomy::AutoFlow):
         -- chunk of text finishing current paragraph and
         -- containing more
         split?(c) && para -> do:
+          ended? = false
           c content each-line("") (p):
-            para << Nokogiri::XML::Text new(p, @document)
+            para << p
             c before(para)
             para =! Nokogiri::XML::Element new("p", @document)
+            ended? =! p suffix?("\n\n")
+
+          when(ended?):
+            para =! nil
 
           c remove
 
         -- chunk of text containing multiple paragraphs
         split?(c) -> do:
+          ended? = false
           c content each-line("") (p):
             para =! Nokogiri::XML::Element new("p", @document)
-            para << Nokogiri::XML::Text new(p, @document)
+            para << p
             c before(para)
+            ended? =! p suffix?("\n\n")
+
+          if(ended?)
+            then: para =! nil
+            else:
+              -- remove the last one as we'll still be adding to it
+              c previous-sibling remove
 
           c remove
 
@@ -77,9 +80,9 @@ class(Anatomy::AutoFlow):
           Anatomy::AutoFlow run(c)
 
     -- ended while still adding para; finish him!
-    when(para):
+    when(para && !(para children empty?)):
       @document << para
 
     p(@document to-html)
 
-Anatomy::AutoFlow run("hello! <em>sup?</em>\n\ngoodbye.<div>nope</div>fizz\n\nbuzz <em>fizzle</em>")
+    @document
