@@ -40,35 +40,14 @@ class(Anatomy::AutoFlow):
           para =! Nokogiri::XML::Element new("p", @document)
           c parent = para
 
-        -- chunk of text finishing current paragraph and
-        -- containing more
-        split?(c) && para -> do:
-          ended? = false
-          c content each-line("") (p):
-            para << p sub(r{\n*$}, "")
-            c before(para)
-            para =! Nokogiri::XML::Element new("p", @document)
-            ended? =! p suffix?("\n\n")
-
-          when(ended?):
-            para =! nil
-
-          c remove
-
         -- chunk of text containing multiple paragraphs
         split?(c) -> do:
-          ended? = false
           c content each-line("") (p):
-            para =! Nokogiri::XML::Element new("p", @document)
+            para ||= Nokogiri::XML::Element new("p", @document)
             para << p sub(r{\n*$}, "")
-            c before(para)
-            ended? =! p suffix?("\n\n")
-
-          if(ended?)
-            then: para =! nil
-            else:
-              -- remove the last one as we'll still be adding to it
-              c previous-sibling remove
+            when(p suffix?("\n\n")):
+              c before(para)
+              para =! nil
 
           c remove
 
