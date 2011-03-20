@@ -1,0 +1,17 @@
+class(Anatomy::Builder < Nokogiri::HTML::Builder):
+  define(run(t)):
+    body: build(t)
+    self
+
+  build(t: Anatomy::AST::Tree) :=
+    t nodes each (n): build(n)
+
+  build(c: Anatomy::AST::Chunk) :=
+    text(c content)
+
+  build(s: Anatomy::AST::Send) :=
+    send(s message, *(s arguments))
+
+  italic(s) := em: build(s)
+
+  bold(a, b) := strong: build(a), text(", "), build(b)

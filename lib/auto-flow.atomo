@@ -1,8 +1,3 @@
-require("rubygems")
-require("nokogiri")
-
-module(Anatomy):;
-
 class(Anatomy::AutoFlow):
   : self ; run(body) :=
     new(body) flow to-html
@@ -24,8 +19,6 @@ class(Anatomy::AutoFlow):
   paragraphs?(str) := str include?("\n\n")
 
   define(flow):
-    p(@document to-html)
-
     para = nil
     @document children each (c):
       condition:
@@ -82,7 +75,5 @@ class(Anatomy::AutoFlow):
     -- ended while still adding para; finish him!
     when(para && !(para children empty?)):
       @document << para
-
-    p(@document to-html)
 
     @document
