@@ -1,7 +1,7 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
   define(run(t)):
     body: build(t)
-    self
+    Anatomy::AutoFlow flow(doc)
 
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
