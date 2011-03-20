@@ -1,0 +1,18 @@
+class(Anatomy::Document):
+  define(initialize):
+    @body = ""
+
+  render(n) := @body << build(n)
+  
+  build(t: Anatomy::AST::Tree) :=
+    t nodes collect (n): build(n); join
+
+  build(c: Anatomy::AST::Chunk) :=
+    c content
+
+  build(s: Anatomy::AST::Send) :=
+    send(s message, *(s arguments collect (a): build(a)))
+
+  italic(s) := "<em>" + s + "</em>"
+
+  bold(a, b) := "<strong>" + a + ", " + b + "</strong>"

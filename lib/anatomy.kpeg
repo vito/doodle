@@ -1,0 +1,28 @@
+           line = { current_line }
+
+    ident_start = < /[a-z_]/ > { text }
+  ident_letters = < /([[:alnum:]\$\+\<=\>\^~!@#%&*\-.\/\?])*/ > { text }
+
+     identifier = < ident_start ident_letters > { text.tr("-", "_") }
+
+        comment = "{-" in_multi
+       in_multi = /[^\-\{\}]*/ "-}"
+                | /[^\-\{\}]*/ "{-" in_multi /[^\-\{\}]*/ "-}"
+                | /[^\-\{\}]*/ /[-{}]/ in_multi
+
+        content = comment? (chunk | escaped):c comment? { c }
+
+          chunk = line:l < /([^\\\{\}]|\\[\\\{\}])+/ >
+                    { Anatomy::AST::Chunk.new(l, text) }
+                | nested
+                
+        escaped = line:l "\\" identifier:n argument*:as
+                    { Anatomy::AST::Send.new(l, n, as) }
+
+         nested = line:l "{" content*:cs "}"
+                    { Anatomy::AST::Tree.new(l, cs) }
+
+       argument = nested
+
+           root = line:l content*:cs !.
+                    { Anatomy::AST::Tree.new(l, cs) }

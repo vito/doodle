@@ -1,0 +1,5 @@
+import("lib/parser")
+import("lib/document")
+
+tree = Anatomy::Parser parse-file("test.anatomy")
+p(Anatomy::Document new render(tree))

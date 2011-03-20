@@ -1,0 +1,6 @@
+module(Anatomy):
+  module(AST):
+    data(Node):
+      Chunk(@line, @content)
+      Send(@line, @message, @arguments)
+      Tree(@line, @nodes)

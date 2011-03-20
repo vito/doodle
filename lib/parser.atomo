@@ -1,0 +1,17 @@
+module(Anatomy):
+  base = File expand-path("../", _FILE)
+  require(base + "/anatomy.kpeg.rb")
+
+  class(Parser):
+    class(<< self):
+      define(parse-string(source)):
+        p = new(source)
+        unless(p parse):
+          p raise-error
+
+        p result
+
+      define(parse-file(name)):
+        parse-string(File open(name, "rb") read)
+
+  import(base + "/ast")
