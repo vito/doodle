@@ -16,7 +16,15 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
   build(s: Anatomy::AST::Send) :=
     if(respond-to?(s message))
       then: send(s message, *(s arguments))
-      else: raise("unknown document message `" + s message + "' at line " + s line to-s)
+      else:
+        raise(
+          NoMethodError new(
+            "unknown document message `" + s message +
+              "' at line " + s line to-s
+            s message
+            *(s arguments)
+          )
+        )
 
   subrender(t, flow? = false) :=
     class new run(t, flow?) at-css("body") inner-html

@@ -8,5 +8,4 @@ import("lib/auto-flow")
 
 tree = Anatomy::Parser parse-file("test.anatomy")
 built = Anatomy::Builder new run(tree)
-p(built to-html)
-p(built title, built tag)
+puts(built to-html, built title, built tag)
