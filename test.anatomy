@@ -1,3 +1,5 @@
+\title{Hello, \italic{\bold{WORLD}}!}{hi}
+
 hello!
 
 \italic{hi!}
@@ -27,8 +29,6 @@ How are you?
 Good, thanks.
 }
 
-\title{Hello, \italic{\bold{WORLD}}!}{hi}
-
 {- hello. this is a comment. -}
 
 hi
@@ -36,3 +36,7 @@ hi
 {- sup? -}
 
 bye {- foo -}
+
+\section{Hello!}{
+  Dis some body, yo.
+}

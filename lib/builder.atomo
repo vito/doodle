@@ -19,6 +19,15 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
     doc apply-styles
 
+  define(run-section(t, name, tag)):
+    div section(#(: #id -> "section_" + tag)):
+      h2 section-header: build(name)
+      build(t)
+
+    Anatomy::AutoFlow flow(doc)
+
+    doc apply-styles
+
   subrender(t, flow? = false) :=
     class new run(t, flow?) at-css("body") inner-html
 
@@ -40,3 +49,19 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
             *(s arguments)
           )
         )
+
+  : self ; strip-tags(str) :=
+    Nokogiri::XML::DocumentFragment parse(str) tap (x):
+      x traverse (node):
+        when(node is-a?(Nokogiri::XML::Element)):
+          node replace(
+            Nokogiri::XML::Text new(
+              node inner-html
+              node document
+            )
+          )
+
+  : self ; sanitize(str) :=
+    strip-tags(str) to-html
+      gsub(r{[A-Z.]}, ".\\0")
+      gsub(r{[^[:alnum:]_\-:.]}, "_")

@@ -1,25 +1,34 @@
 module(Anatomy::Styles):
   module(Default):
-    : self ; strip-tags(str) :=
-      Nokogiri::XML::DocumentFragment parse(str) tap (x):
-        x traverse (node):
-          when(node is-a?(Nokogiri::XML::Element)):
-            node replace(
-              Nokogiri::XML::Text new(
-                node inner-html
-                node document
-              )
-            )
-
     : self ; apply(document) :=
       when(document title):
         document at-css("head title") inner-html =
-          strip-tags(document title)
+          Anatomy::Builder strip-tags(document title)
+
+        document xpath(".//anatomy_section") each (r):
+          r replace(document down fetch(r inner-html) at-css("div"))
 
     : self ; extend-object(o) :=
       class(<< o):
         title(name, tag = name) := do:
           builder doc title = subrender(name)
-          builder doc tag = subrender(tag)
+          builder doc tag =
+            Anatomy::Builder sanitize(subrender(tag))
 
           h1: build(name)
+
+        section(name, tag-or-body, body = nil) := do:
+          tag = Anatomy::Builder sanitize(
+            if(body nil?)
+              then: subrender(name)
+              else: subrender(tag-or-body)
+          )
+
+          body ||= tag-or-body
+
+          sub = Anatomy::Builder new run-section(body, name, tag)
+
+          builder doc down at(tag) put(sub)
+
+          anatomy-section:
+            text(tag)
