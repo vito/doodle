@@ -9,7 +9,7 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     @tags = Hash new
     @styles = [Anatomy::Styles::Default]
     @up = nil
-    @down = []
+    @down = Hash new -- tag -> document
 
   apply-styles := do:
     @styles each (m):

@@ -1,6 +1,6 @@
 module(Anatomy::AutoFlow):
   class(<< self):
-    flow?(x) := x description inline?
+    flow?(x) := x description && x description inline?
     flow?(x: Nokogiri::XML::Text) :=
       !(paragraphs?(x content))
 
@@ -20,7 +20,7 @@ module(Anatomy::AutoFlow):
             false
 
     p-able?(doc) :=
-      doc description nil? ||
+      doc description &&
         doc description sub-elements include?("p")
 
     define(flow(doc)):

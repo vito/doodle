@@ -1,11 +1,11 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
   define(initialize):
     super
+
     @markup = Anatomy::Markup new(self)
+
     @doc styles each (m):
       @markup extend(m)
-
-  document := @doc
 
   define(run(t, flow? = true)):
     html:
