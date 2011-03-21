@@ -1,11 +1,26 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
+  define(initialize):
+    super
+    @markup = Anatomy::Markup new(self)
+    @doc styles each (m):
+      @markup extend(m)
+
+  document := @doc
+
   define(run(t, flow? = true)):
-    body: build(t)
+    html:
+      head:
+        title: text("Untitled")
+
+      body: build(t)
 
     when(flow?):
       Anatomy::AutoFlow flow(doc)
 
-    doc
+    doc apply-styles
+
+  subrender(t, flow? = false) :=
+    class new run(t, flow?) at-css("body") inner-html
 
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
@@ -14,8 +29,8 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     text(c content)
 
   build(s: Anatomy::AST::Send) :=
-    if(respond-to?(s message))
-      then: send(s message, *(s arguments))
+    if(@markup respond-to?(s message))
+      then: @markup send(s message, *(s arguments))
       else:
         raise(
           NoMethodError new(
@@ -25,16 +40,3 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
             *(s arguments)
           )
         )
-
-  subrender(t, flow? = false) :=
-    class new run(t, flow?) at-css("body") inner-html
-
-  title(title, tag = title) := do:
-    @doc title = subrender(title)
-    @doc tag = subrender(tag)
-
-  italic(s) := em: build(s)
-
-  bold(s) := strong: build(s)
-
-  verbatim(s) := pre: build(s)

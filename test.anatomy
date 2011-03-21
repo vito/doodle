@@ -27,7 +27,7 @@ How are you?
 Good, thanks.
 }
 
-\title{Hello, \italic{WORLD}!}{hi}
+\title{Hello, \italic{\bold{WORLD}}!}{hi}
 
 {- hello. this is a comment. -}
 

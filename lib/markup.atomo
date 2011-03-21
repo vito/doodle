@@ -1,0 +1,13 @@
+class(Anatomy::Markup):
+  attr-accessor(#builder)
+
+  initialize(@builder) := #ok
+
+  method-missing(name, *as, &b) :=
+    @builder send(name, *as, &b)
+
+  italic(s) := em: build(s)
+
+  bold(s) := strong: build(s)
+
+  verbatim(s) := pre: build(s)

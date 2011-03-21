@@ -2,10 +2,12 @@ require("rubygems")
 require("nokogiri")
 
 import("lib/parser")
+import("lib/markup")
 import("lib/builder")
 import("lib/document")
 import("lib/auto-flow")
+import("lib/styles/default")
 
 tree = Anatomy::Parser parse-file("test.anatomy")
 built = Anatomy::Builder new run(tree)
-puts(built to-html, built title, built tag)
+File open("out.html", "w") write(built to-html)
