@@ -12,8 +12,10 @@
 
         content = comment? (chunk | escaped):c comment? { c }
 
-          chunk = line:l < /([^\\\{\}]|\\[\\\{\}])+/ >
-                    { Anatomy::AST::Chunk.new(l, text) }
+          chunk = line:l < /([^\\\{\}]|\\[\\\{\}])+/ > comment?:c
+                    { text.rstrip! if c
+                      Anatomy::AST::Chunk.new(l, text)
+                    }
                 | nested
                 
         escaped = line:l "\\" identifier:n argument*:as

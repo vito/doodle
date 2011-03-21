@@ -28,3 +28,11 @@ Good, thanks.
 }
 
 \title{Hello, \italic{WORLD}!}{hi}
+
+{- hello. this is a comment. -}
+
+hi
+
+{- sup? -}
+
+bye {- foo -}

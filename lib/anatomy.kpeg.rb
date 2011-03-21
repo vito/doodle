@@ -569,7 +569,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # chunk = (line:l < /([^\\\{\}]|\\[\\\{\}])+/ > { Anatomy::AST::Chunk.new(l, text) } | nested)
+  # chunk = (line:l < /([^\\\{\}]|\\[\\\{\}])+/ > comment?:c { text.rstrip! if c                       Anatomy::AST::Chunk.new(l, text)                     } | nested)
   def _chunk
 
     _save = self.pos
@@ -592,7 +592,21 @@ class Anatomy::Parser
       self.pos = _save1
       break
     end
-    @result = begin;  Anatomy::AST::Chunk.new(l, text) ; end
+    _save2 = self.pos
+    _tmp = apply(:_comment)
+    @result = nil unless _tmp
+    unless _tmp
+      _tmp = true
+      self.pos = _save2
+    end
+    c = @result
+    unless _tmp
+      self.pos = _save1
+      break
+    end
+    @result = begin;  text.rstrip! if c
+                      Anatomy::AST::Chunk.new(l, text)
+                    ; end
     _tmp = true
     unless _tmp
       self.pos = _save1
@@ -764,7 +778,7 @@ class Anatomy::Parser
   Rules[:_comment] = rule_info("comment", "\"{-\" in_multi")
   Rules[:_in_multi] = rule_info("in_multi", "(/[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ \"{-\" in_multi /[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ /[-{}]/ in_multi)")
   Rules[:_content] = rule_info("content", "comment? (chunk | escaped):c comment? { c }")
-  Rules[:_chunk] = rule_info("chunk", "(line:l < /([^\\\\\\{\\}]|\\\\[\\\\\\{\\}])+/ > { Anatomy::AST::Chunk.new(l, text) } | nested)")
+  Rules[:_chunk] = rule_info("chunk", "(line:l < /([^\\\\\\{\\}]|\\\\[\\\\\\{\\}])+/ > comment?:c { text.rstrip! if c                       Anatomy::AST::Chunk.new(l, text)                     } | nested)")
   Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Anatomy::AST::Send.new(l, n, as) }")
   Rules[:_nested] = rule_info("nested", "line:l \"{\" content*:cs \"}\" { Anatomy::AST::Tree.new(l, cs) }")
   Rules[:_argument] = rule_info("argument", "nested")
