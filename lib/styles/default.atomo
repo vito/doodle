@@ -1,25 +1,22 @@
 module(Anatomy::Styles):
   module(Default):
-    : self ; strip-tags(str) := do:
-      x = Nokogiri::XML::DocumentFragment parse(str)
-
-      x traverse (node):
-        when(node is-a?(Nokogiri::XML::Element)):
-          node replace(
-            Nokogiri::XML::Text new(
-              node inner-html
-              node document
+    : self ; strip-tags(str) :=
+      Nokogiri::XML::DocumentFragment parse(str) tap (x):
+        x traverse (node):
+          when(node is-a?(Nokogiri::XML::Element)):
+            node replace(
+              Nokogiri::XML::Text new(
+                node inner-html
+                node document
+              )
             )
-          )
 
-      x to-html
-
-    : self ; apply(document) := do:
+    : self ; apply(document) :=
       when(document title):
         document at-css("head title") inner-html =
           strip-tags(document title)
 
-    : self ; extend-object(o) := do:
+    : self ; extend-object(o) :=
       class(<< o):
         title(name, tag = name) := do:
           builder doc title = subrender(name)
