@@ -1,4 +1,4 @@
 *.rbc
 *.gem
 *.atomoc
-_play/
+out.html
