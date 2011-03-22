@@ -42,6 +42,7 @@ module(Anatomy::Styles):
           anatomy-section: text(tag)
 
         include-section(path) := do:
+          path = Anatomy::Builder run-inline(path)
           tree = Anatomy::Parser parse-file(path)
           sub = Anatomy::Builder run(tree)
 
