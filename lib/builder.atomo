@@ -1,4 +1,6 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
+  attr-reader(#markup)
+
   define(initialize):
     @markup = Anatomy::Markup new(self)
 
@@ -37,10 +39,10 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
           body:
             div section:
-              build(t)
+              when(tweaks):
+                tweaks call(b doc, b)
 
-      when(tweaks):
-        tweaks call(b doc)
+              build(t)
 
       when(flow?):
         Anatomy::AutoFlow flow(b doc)

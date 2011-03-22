@@ -5,18 +5,9 @@ module(Anatomy::Styles):
         document at-css("head title") inner-html =
           Anatomy::Builder run-strip(document title)
 
-        document at-xpath(".//anatomy_title")
-          replace(header(document))
-
       document xpath(".//anatomy_section") each (r):
         sub = document down fetch(r inner-html)
         r replace(section(sub))
-
-    : self ; header(document) :=
-      Anatomy::Builder new:
-        send("h" + (document depth + 1) to-s):
-          build(document title);
-        ; doc at-css("h1, h2, h3, h4, h5, h6")
 
     : self ; section(document) :=
       document at-css("body > .section") tap (s):
@@ -27,7 +18,7 @@ module(Anatomy::Styles):
         title(title, tag = title) := do:
           builder doc title = title
           builder doc tag = Anatomy::Builder run-inline(tag)
-          anatomy-title
+          header
 
         section(title, tag-or-body, body = nil) := do:
           tag = Anatomy::Builder run-sanitize(
@@ -38,16 +29,12 @@ module(Anatomy::Styles):
 
           body ||= tag-or-body
 
-          sub = Anatomy::Builder run(body) (doc):
+          sub = Anatomy::Builder run(body) (doc, sub-builder):
             doc up = builder doc
             doc title = title
             doc tag = tag
 
-            title = Nokogiri::XML::Element new("anatomy_title", doc)
-            section = doc at-css(".section")
-            if(section children first)
-              then: section children before(title)
-              else: section add-child(title)
+            sub-builder markup header
 
           builder doc down at(tag) put(sub)
 
@@ -61,4 +48,10 @@ module(Anatomy::Styles):
             doc up = builder doc
 
           builder doc down at(sub tag) put(sub)
+
           anatomy-section: text(sub tag)
+
+        header := do:
+          title = builder doc title
+          send("h" + (builder doc depth + 1) to-s):
+            build(title)
