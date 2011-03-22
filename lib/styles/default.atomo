@@ -5,6 +5,12 @@ module(Anatomy::Styles):
         document at-css("head title") inner-html =
           Anatomy::Builder run-strip(document title)
 
+      Anatomy::Builder with(document at("head")):
+        link(#(:
+          #rel -> "stylesheet"
+          #type -> "text/css"
+          #href -> "public/anatomy.css"))
+
       document xpath(".//anatomy_section") each (r):
         sub = document down fetch(r inner-html)
         r replace(section(sub))

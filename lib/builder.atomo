@@ -1,7 +1,7 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
   attr-reader(#markup)
 
-  define(initialize):
+  define(initialize(options = Hash new, root = nil, &block)):
     @markup = Anatomy::Markup new(self)
 
     super
@@ -36,8 +36,6 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
           head:
             title:
               text("Untitled")
-
-            link(#(: #rel -> "stylesheet", #type -> "text/css", #href -> "public/anatomy.css" ))
 
           body:
             div content!:
