@@ -1,8 +1,8 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
   define(initialize):
-    super
-
     @markup = Anatomy::Markup new(self)
+
+    super
 
     @doc styles each (m):
       @markup extend(m)
@@ -27,24 +27,36 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
         )
 
   class(<< self):
-    define(run(t, flow? = true)):
+    define(run(t, flow? = true, &tweaks)):
       b = Anatomy::Builder new
 
       b html:
           head:
-            title: text("Untitled")
+            title:
+              text("Untitled")
 
-          body: build(t)
+          body:
+            div section:
+              build(t)
+
+      when(tweaks):
+        tweaks call(b doc)
 
       when(flow?):
         Anatomy::AutoFlow flow(b doc)
 
       b doc apply-styles
 
+    define(run-sanitize(node)):
+      sanitize(run-inline(node))
+
+    define(run-strip(node)):
+      strip-tags(run-inline(node))
+
     define(run-inline(node)):
       b = Anatomy::Builder new
       b body: build(node)
-      b doc apply-styles at-css("body") inner-html
+      b doc at-css("body") inner-html
 
     strip-tags(str) :=
       Nokogiri::XML::DocumentFragment parse(str) tap (x):

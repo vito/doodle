@@ -3,40 +3,52 @@ module(Anatomy::Styles):
     : self ; apply(document) := do:
       when(document title):
         document at-css("head title") inner-html =
-          Anatomy::Builder strip-tags(Anatomy::Builder run-inline(document title))
+          Anatomy::Builder run-strip(document title)
+
+        document at-xpath(".//anatomy_title")
+          replace(header(document))
 
       document xpath(".//anatomy_section") each (r):
         sub = document down fetch(r inner-html)
-        r replace(section(sub) doc at-css("div"))
+        r replace(section(sub))
+
+    : self ; header(document) :=
+      Anatomy::Builder new:
+        send("h" + (document depth + 1) to-s):
+          build(document title);
+        ; doc at-css("h1, h2, h3, h4, h5, h6")
 
     : self ; section(document) :=
-      Anatomy::Builder new:
-        div section(#(: #id -> "section_" + document tag)):
-          h2: build(document title)
-          insert(document at-css("body > *"))
+      document at-css("body > .section") tap (s):
+        s at("id") put("section_" + document tag)
 
     : self ; extend-object(o) :=
       class(<< o):
         title(title, tag = title) := do:
           builder doc title = title
           builder doc tag = Anatomy::Builder run-inline(tag)
-
-          h1: build(title)
+          anatomy-title
 
         section(title, tag-or-body, body = nil) := do:
-          tag = Anatomy::Builder sanitize(
+          tag = Anatomy::Builder run-sanitize(
             if(body nil?)
-              then: Anatomy::Builder run-inline(title)
-              else: Anatomy::Builder run-inline(tag-or-body)
+              then: title
+              else: tag-or-body
           )
 
           body ||= tag-or-body
 
-          sub = Anatomy::Builder run(body)
-          sub title = title
-          sub tag = tag
+          sub = Anatomy::Builder run(body) (doc):
+            doc up = builder doc
+            doc title = title
+            doc tag = tag
 
-          sub up = builder doc
+            title = Nokogiri::XML::Element new("anatomy_title", doc)
+            section = doc at-css(".section")
+            if(section children first)
+              then: section children before(title)
+              else: section add-child(title)
+
           builder doc down at(tag) put(sub)
 
           anatomy-section: text(tag)
@@ -44,9 +56,9 @@ module(Anatomy::Styles):
         include-section(path) := do:
           path = Anatomy::Builder run-inline(path)
           tree = Anatomy::Parser parse-file(path)
-          sub = Anatomy::Builder run(tree)
 
-          sub up = builder doc
+          sub = Anatomy::Builder run(tree) (doc):
+            doc up = builder doc
+
           builder doc down at(sub tag) put(sub)
-
           anatomy-section: text(sub tag)

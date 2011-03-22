@@ -19,9 +19,10 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
   define(depth):
     d = 0
-    p = self
+    p = @up
 
-    while(p =! p up):
+    while(p):
       d += 1
+      p =! p up
 
     d

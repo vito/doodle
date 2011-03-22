@@ -38,5 +38,7 @@ hi
 bye {- foo -}
 
 \section{Hello!}{
-  Dis some body, yo.
+  Sup?
 }
+
+\include-section{included.anatomy}
