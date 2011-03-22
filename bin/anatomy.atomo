@@ -9,5 +9,5 @@ import("lib/auto-flow")
 import("lib/styles/default")
 
 tree = Anatomy::Parser parse-file("test.anatomy")
-built = Anatomy::Builder new run(tree)
+built = Anatomy::Builder run(tree)
 File open("out.html", "w") write(built to-html)

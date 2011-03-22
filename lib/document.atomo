@@ -5,7 +5,7 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     super
 
     @title = nil
-    @tag = nil
+    @tag = ""
     @tags = Hash new
     @styles = [Anatomy::Styles::Default]
     @up = nil
@@ -16,3 +16,12 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
       m apply(self)
 
     self
+
+  define(depth):
+    d = 0
+    p = self
+
+    while(p =! p up):
+      d += 1
+
+    d

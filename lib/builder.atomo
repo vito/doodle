@@ -7,30 +7,6 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     @doc styles each (m):
       @markup extend(m)
 
-  define(run(t, flow? = true)):
-    html:
-      head:
-        title: text("Untitled")
-
-      body: build(t)
-
-    when(flow?):
-      Anatomy::AutoFlow flow(doc)
-
-    doc apply-styles
-
-  define(run-section(t, name, tag)):
-    div section(#(: #id -> "section_" + tag)):
-      h2 section-header: build(name)
-      build(t)
-
-    Anatomy::AutoFlow flow(doc)
-
-    doc apply-styles
-
-  subrender(t, flow? = false) :=
-    class new run(t, flow?) at-css("body") inner-html
-
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
 
@@ -50,18 +26,38 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
           )
         )
 
-  : self ; strip-tags(str) :=
-    Nokogiri::XML::DocumentFragment parse(str) tap (x):
-      x traverse (node):
-        when(node is-a?(Nokogiri::XML::Element)):
-          node replace(
-            Nokogiri::XML::Text new(
-              node inner-html
-              node document
-            )
-          )
+  class(<< self):
+    define(run(t, flow? = true)):
+      b = Anatomy::Builder new
 
-  : self ; sanitize(str) :=
-    strip-tags(str) to-html
-      gsub(r{[A-Z.]}, ".\\0")
-      gsub(r{[^[:alnum:]_\-:.]}, "_")
+      b html:
+          head:
+            title: text("Untitled")
+
+          body: build(t)
+
+      when(flow?):
+        Anatomy::AutoFlow flow(b doc)
+
+      b doc apply-styles
+
+    define(run-inline(node)):
+      b = Anatomy::Builder new
+      b body: build(node)
+      b doc apply-styles at-css("body") inner-html
+
+    strip-tags(str) :=
+      Nokogiri::XML::DocumentFragment parse(str) tap (x):
+        x traverse (node):
+          when(node is-a?(Nokogiri::XML::Element)):
+            node replace(
+              Nokogiri::XML::Text new(
+                node inner-html
+                node document
+              )
+            )
+
+    sanitize(str) :=
+      strip-tags(str) to-html
+        gsub(r{[A-Z.]}, ".\\0")
+        gsub(r{[^[:alnum:]_\-:.]}, "_")
