@@ -37,12 +37,15 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
             title:
               text("Untitled")
 
-          body:
-            div section:
-              when(tweaks):
-                tweaks call(b doc, b)
+            link(#(: #rel -> "stylesheet", #type -> "text/css", #href -> "public/anatomy.css" ))
 
-              build(t)
+          body:
+            div content!:
+              div section:
+                when(tweaks):
+                  tweaks call(b doc, b)
+
+                build(t)
 
       when(flow?):
         Anatomy::AutoFlow flow(b doc)

@@ -10,4 +10,4 @@ class(Anatomy::Markup):
 
   bold(s) := strong: build(s)
 
-  verbatim(s) := pre: build(s)
+  verbatim(s) := pre verbatim: build(s)

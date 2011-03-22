@@ -10,7 +10,7 @@ module(Anatomy::Styles):
         r replace(section(sub))
 
     : self ; section(document) :=
-      document at-css("body > .section") tap (s):
+      document at-css("body .section") tap (s):
         s at("id") put("section_" + document tag)
 
     : self ; extend-object(o) :=
@@ -53,5 +53,5 @@ module(Anatomy::Styles):
 
         header := do:
           title = builder doc title
-          send("h" + (builder doc depth + 1) to-s):
+          send("h" + (builder doc depth + 1) to-s) section-header:
             build(title)
