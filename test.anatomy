@@ -22,11 +22,11 @@ k l m n
 o p \italic{q} r s
 
 \verbatim{
-Hi!
+  Hi!
 
-How are you?
+  How are you?
 
-Good, thanks.
+  Good, thanks.
 }
 
 {- hello. this is a comment. -}
@@ -39,6 +39,10 @@ bye {- foo -}
 
 \section{Hello!}{
   Sup?
+
+  \italic{Another line.}
+
+  Some text, and then, \bold{BOLD!}
 }
 
 \include-section{included.anatomy}

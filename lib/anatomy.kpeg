@@ -1,4 +1,16 @@
+%% {
+    def trim_leading(str, n)
+      return str unless n > 0
+      trimmed = ""
+      str.each_line do |s|
+        s.sub!(/ {0,#{n.to_s}}/, "")
+        trimmed << s
+      end
+      trimmed
+    end
+}
            line = { current_line }
+         column = { current_column }
 
     ident_start = < /[a-z_]/ > { text }
   ident_letters = < /([[:alnum:]\$\+\<=\>\^~!@#%&*\-.\/\?])*/ > { text }
@@ -10,21 +22,24 @@
                 | /[^\-\{\}]*/ "{-" in_multi /[^\-\{\}]*/ "-}"
                 | /[^\-\{\}]*/ /[-{}]/ in_multi
 
-        content = comment? (chunk | escaped):c comment? { c }
+     content(s) = comment? (chunk(s) | escaped):c comment? { c }
 
-          chunk = line:l < /([^\\\{\}]|\\[\\\{\}])+/ > comment?:c
+       chunk(s) = line:l < /([^\\\{\}]|\\[\\\{\}])+/ > (&"}" | comment)?:c
                     { text.rstrip! if c
-                      Anatomy::AST::Chunk.new(l, text)
+                      Anatomy::AST::Chunk.new(l, trim_leading(text,s))
                     }
                 | nested
                 
         escaped = line:l "\\" identifier:n argument*:as
                     { Anatomy::AST::Send.new(l, n, as) }
 
-         nested = line:l "{" content*:cs "}"
+        leading = /\n+/ &(column:b /\s+/ column:a) { a - b }
+                | { 0 }
+
+         nested = line:l "{" leading:s content(s)*:cs "}"
                     { Anatomy::AST::Tree.new(l, cs) }
 
        argument = nested
 
-           root = line:l content*:cs !.
+           root = line:l content(0)*:cs !.
                     { Anatomy::AST::Tree.new(l, cs) }
