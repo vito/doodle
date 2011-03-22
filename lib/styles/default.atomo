@@ -17,7 +17,7 @@ module(Anatomy::Styles):
 
     : self ; extend-object(o) :=
       class(<< o):
-        title(title, tag = name) := do:
+        title(title, tag = title) := do:
           builder doc title = title
           builder doc tag = Anatomy::Builder run-inline(tag)
 
