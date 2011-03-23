@@ -11,6 +11,10 @@ module(Anatomy::Styles):
           #type -> "text/css"
           #href -> "public/anatomy.css"))
 
+      Anatomy::Builder with(document at("body")):
+        div sidebar!:
+          table-of-contents
+
       document xpath(".//anatomy_section") each (r):
         sub = document down fetch(r inner-html)
         r replace(section(sub))
@@ -19,7 +23,7 @@ module(Anatomy::Styles):
       document at-css("body .section") tap (s):
         s at("id") put("section_" + document tag)
 
-    : self ; extend-object(o) :=
+    : self ; extend-object(o) := do:
       class(<< o):
         title(title, tag = title) := do:
           builder doc title = title
@@ -40,7 +44,7 @@ module(Anatomy::Styles):
             doc title = title
             doc tag = tag
 
-            sub-builder markup header
+            sub-builder header
 
           builder doc down at(tag) put(sub)
 
@@ -57,7 +61,21 @@ module(Anatomy::Styles):
 
           anatomy-section: text(sub tag)
 
-        header := do:
-          title = builder doc title
-          send("h" + (builder doc depth + 1) to-s) section-header:
-            build(title)
+      class(<< o builder):
+        header :=
+          send("h" + (@doc depth + 1) to-s) section-header:
+            build(@doc title)
+
+        table-of-contents :=
+          ol toc:
+            toc-leaf(@doc)
+
+        define(toc-leaf(d)):
+          li:
+            a(#(: #href -> d url)):
+              build(d title)
+
+          unless(d down empty?):
+            ol:
+              d down each-value (s):
+                toc-leaf(s)

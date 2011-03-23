@@ -19,3 +19,8 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
       p =! p up
 
     d
+
+  url :=
+    if(depth == 0)
+      then: tag + ".html"
+      else: @up url sub(r{#[^$]+$}, "") + "#section_" + tag
