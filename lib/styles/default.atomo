@@ -23,7 +23,7 @@ module(Anatomy::Styles):
       class(<< o):
         title(title, tag = title) := do:
           builder doc title = title
-          builder doc tag = Anatomy::Builder run-inline(tag)
+          builder doc tag = Anatomy::Builder run-sanitize(tag)
           header
 
         section(title, tag-or-body, body = nil) := do:
