@@ -7,15 +7,8 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     @title = nil
     @tag = ""
     @tags = Hash new
-    @styles = [Anatomy::Styles::Default]
     @up = nil
     @down = Hash new -- tag -> document
-
-  apply-styles := do:
-    @styles each (m):
-      m apply(self)
-
-    self
 
   define(depth):
     d = 0

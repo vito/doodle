@@ -3,11 +3,12 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
   define(initialize(options = Hash new, root = nil, &block)):
     @markup = Anatomy::Markup new(self)
+    @styles = [Anatomy::Styles::Default]
+
+    @styles each (m):
+      @markup extend(m)
 
     super
-
-    @doc styles each (m):
-      @markup extend(m)
 
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
@@ -27,6 +28,11 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
             *(s arguments)
           )
         )
+
+  apply-styles :=
+    @doc tap (d):
+      @styles each (s):
+        s apply(d)
 
   class(<< self):
     define(run(t, flow? = true, &tweaks)):
@@ -48,7 +54,7 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
       when(flow?):
         Anatomy::AutoFlow flow(b doc)
 
-      b doc apply-styles
+      b apply-styles
 
     define(run-sanitize(node)):
       sanitize(run-inline(node))
