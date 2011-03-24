@@ -102,10 +102,10 @@ module(Anatomy::Styles):
             a(#[href: d url]):
               build(d title)
 
-          unless(d down empty?):
-            ol:
-              d down each-value (s):
-                toc-leaf(s)
+            unless(d down empty?):
+              ol:
+                d down each-value (s):
+                  toc-leaf(s)
 
 -- reopen, and add a new #url with TOC semantics
 class(Anatomy::Document):
@@ -114,4 +114,4 @@ class(Anatomy::Document):
   url :=
     if(depth == 0 || @up toc?)
       then: tag + ".html"
-      else: @up url sub(r{#[^$]+$}, "") + "#section_" + @tag
+      else: @up url sub(r{#.*$}, "") + "#section_" + @tag
