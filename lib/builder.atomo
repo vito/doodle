@@ -80,5 +80,6 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
     sanitize(str) :=
       strip-tags(str) to-html
-        gsub(r{[A-Z.]}, ".\\0")
-        gsub(r{[^[:alnum:]_\-:.]}, "_")
+        gsub(r{\s+}, "-")
+        gsub(r{[^[:alnum:]_\-:.]}, "")
+        downcase
