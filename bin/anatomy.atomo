@@ -42,7 +42,7 @@ public = File expand-path("../../public/", _FILE)
 unless(File directory?(output + "/public")):
   Dir mkdir(output + "/public")
 
-FileUtils copy(Dir glob(public + "/*"), output + "/public")
+FileUtils cp-r(public, output)
 
 Anatomy::Builder
   run(tree)
