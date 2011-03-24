@@ -16,16 +16,27 @@ module(Anatomy::Styles):
         div sidebar!:
           table-of-contents
 
+      toc = document at-css("#table_of_contents")
+
       document xpath(".//anatomy_section") each (r):
-        sub = document down fetch(r inner-html)
-        r replace(section(sub))
+        if(toc)
+          then:
+            r remove
+          else:
+            sub = document down fetch(r inner-html)
+            r replace(section(sub))
+
+      when(toc):
+        Anatomy::Builder with(toc):
+          @doc down each-value (d):
+            toc-leaf(d)
 
     : self ; section(document) :=
       document at-css("body .section") tap (s):
         s at("id") put("section_" + document tag)
 
-    : self ; extend-object(o) := do:
-      class(<< o):
+    : self ; extend-object(markup) := do:
+      class(<< markup):
         title(title, tag = title) := do:
           builder doc title = title
           builder doc tag = Anatomy::Builder run-sanitize(tag)
@@ -62,7 +73,13 @@ module(Anatomy::Styles):
 
           anatomy-section: text(sub tag)
 
-      class(<< o builder):
+        table-of-contents := do:
+          builder doc toc? = true
+          ol toc table-of-contents!
+
+      class(<< markup builder):
+        attr-accessor(#toc)
+
         header :=
           send("h" + (@doc depth + 1) to-s) section-header:
             build(@doc title)
@@ -82,10 +99,19 @@ module(Anatomy::Styles):
 
         define(toc-leaf(d)):
           li:
-            a(#(: #href -> d url)):
+            a(#[href: d url]):
               build(d title)
 
           unless(d down empty?):
             ol:
               d down each-value (s):
                 toc-leaf(s)
+
+-- reopen, and add a new #url with TOC semantics
+class(Anatomy::Document):
+  attr-accessor(#toc?)
+
+  url :=
+    if(depth == 0 || @up toc?)
+      then: tag + ".html"
+      else: @up url sub(r{#[^$]+$}, "") + "#section_" + @tag

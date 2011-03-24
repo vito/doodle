@@ -37,6 +37,8 @@ hi
 
 bye {- foo -}
 
+\table-of-contents
+
 \section{Hello!}{
   Sup?
 

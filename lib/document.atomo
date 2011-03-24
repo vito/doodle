@@ -22,5 +22,5 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
   url :=
     if(depth == 0)
-      then: tag + ".html"
-      else: @up url sub(r{#[^$]+$}, "") + "#section_" + tag
+      then: @tag + ".html"
+      else: @up url sub(r{#[^$]+$}, "") + "#section_" + @tag
