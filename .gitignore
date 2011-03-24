@@ -2,3 +2,4 @@
 *.gem
 *.atomoc
 _out
+_test
