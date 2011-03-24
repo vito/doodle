@@ -1,13 +1,49 @@
 require("rubygems")
 require("nokogiri")
+require("optparse")
 
-import("lib/parser")
-import("lib/markup")
-import("lib/builder")
-import("lib/document")
-import("lib/auto-flow")
-import("lib/styles/default")
+base = File expand-path("../../lib/", _FILE)
 
-tree = Anatomy::Parser parse-file("test.anatomy")
-built = Anatomy::Builder run(tree)
-File open("out.html", "w") write(built to-html)
+"parser markup builder document auto-flow
+styles/default" split each (l):
+  import(base + "/" + l)
+
+options = #[]
+op = OptionParser new (o):
+  o banner = "usage: anatomy [file] [options]"
+
+  o on("-i", "--input FILE", "anatomy document") (v):
+    options at(#input) put(v)
+
+  o on("-o", "--output DIRECTORY", "where to place output documents and files") (v):
+    options at(#output) put(v)
+
+op parse!
+
+file = options fetch(
+  #input
+  if(ARGV at(0) == _FILE)
+    then: ARGV at(1)
+    else: ARGV at(0)
+)
+
+output = options fetch(#output, ".")
+
+unless(file):
+  puts(op help)
+  exit(1)
+
+tree = Anatomy::Parser parse-file(file)
+
+unless(File directory?(output)):
+  Dir mkdir(output)
+
+public = File expand-path("../../public/", _FILE)
+unless(File directory?(output + "/public")):
+  Dir mkdir(output + "/public")
+
+FileUtils copy(Dir glob(public + "/*"), output + "/public")
+
+Anatomy::Builder
+  run(tree)
+  save-to(options fetch(#output, "."))

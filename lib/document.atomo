@@ -26,3 +26,11 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     if(standalone?)
       then: @tag + ".html"
       else: @up url sub(r{#.*$}, "") + "#section_" + @tag
+
+  save-to(where) := do:
+    when(standalone?):
+      File open(where + "/" + @tag + ".html", "w")
+           write(to-html)
+
+    @down each-value (s):
+      s save-to(where)
