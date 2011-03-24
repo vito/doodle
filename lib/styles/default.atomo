@@ -111,4 +111,4 @@ module(Anatomy::Styles):
 class(Anatomy::Document):
   attr-accessor(#toc?)
 
-  standalone? := depth == 0 || @up toc?
+  top? := @up nil? || @up toc?

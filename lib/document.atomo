@@ -10,25 +10,28 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     @up = nil
     @down = Hash new -- tag -> document
 
+  top? := @up nil?
+
   define(depth):
     d = 0
-    p = @up
+    p = self
 
     while(p):
+      when(p top?):
+        return(d)
+
       d += 1
       p =! p up
 
     d
 
-  standalone? := depth == 0
-
   url :=
-    if(standalone?)
+    if(top?)
       then: @tag + ".html"
       else: @up url sub(r{#.*$}, "") + "#section_" + @tag
 
   save-to(where) := do:
-    when(standalone?):
+    when(top?):
       File open(where + "/" + @tag + ".html", "w")
            write(to-html)
 
