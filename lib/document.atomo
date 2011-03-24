@@ -20,7 +20,9 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
     d
 
+  standalone? := depth == 0
+
   url :=
-    if(depth == 0)
+    if(standalone?)
       then: @tag + ".html"
       else: @up url sub(r{#.*$}, "") + "#section_" + @tag

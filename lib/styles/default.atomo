@@ -107,11 +107,8 @@ module(Anatomy::Styles):
                 d down each-value (s):
                   toc-leaf(s)
 
--- reopen, and add a new #url with TOC semantics
+-- reopen, and add #standalone? with TOC semantics
 class(Anatomy::Document):
   attr-accessor(#toc?)
 
-  url :=
-    if(depth == 0 || @up toc?)
-      then: tag + ".html"
-      else: @up url sub(r{#.*$}, "") + "#section_" + @tag
+  standalone? := depth == 0 || @up toc?
