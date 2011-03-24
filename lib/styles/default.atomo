@@ -6,10 +6,11 @@ module(Anatomy::Styles):
           Anatomy::Builder run-strip(document title)
 
       Anatomy::Builder with(document at("head")):
-        link(#(:
+        link(#[
           #rel -> "stylesheet"
           #type -> "text/css"
-          #href -> "public/anatomy.css"))
+          #href -> "public/anatomy.css"
+        ])
 
       Anatomy::Builder with(document at("body")):
         div sidebar!:
@@ -66,9 +67,18 @@ module(Anatomy::Styles):
           send("h" + (@doc depth + 1) to-s) section-header:
             build(@doc title)
 
-        table-of-contents :=
-          ol toc:
-            toc-leaf(@doc)
+        define(table-of-contents):
+          unless(@doc down empty?):
+            h4("On this page:")
+
+            ol toc:
+              @doc down each-value (s):
+                toc-leaf(s)
+
+          when(@doc up):
+            h4("Up one level:")
+            ol toc:
+              toc-leaf(@doc up)
 
         define(toc-leaf(d)):
           li:
