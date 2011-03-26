@@ -14,10 +14,7 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     d = 0
     p = self
 
-    while(p):
-      when(p top?):
-        return(d)
-
+    until(p top?):
       d += 1
       p =! p up
 
