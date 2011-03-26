@@ -28,6 +28,12 @@ module(Anatomy::Styles):
             #href -> "public/anatomy.css"
           ])
 
+          ["jquery", "jquery.hotkeys", "tags", "main"] each (js):
+            script(#[
+              type: "text/javascript"
+              src: "public/" + js + ".js"
+            ])
+
         Anatomy::Builder with(document at("body")):
           div sidebar!:
             table-of-contents
