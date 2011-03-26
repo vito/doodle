@@ -22,7 +22,7 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     res = s
 
     @styles each (x):
-      res =! x scan(@doc, s message to-sym, s arguments)
+      res =! x scan(@doc, [s message to-sym] + s arguments)
 
     Anatomy::AST::Send new(
       s line
