@@ -4,3 +4,10 @@ module(Anatomy):
       Chunk(@line, @content)
       Send(@line, @message, @arguments)
       Tree(@line, @nodes)
+      Value(@line, @value)
+
+    class(<< Node):
+      from(c: Chunk) := c
+      from(s: Send) := s
+      from(t: Tree) := t
+      from(v) := Value new(0, v)

@@ -7,9 +7,8 @@ module(Anatomy::Styles):
 
     section-reference(tag) :=
       unless(builder doc toc?):
-        tag = Anatomy::Builder run-inline(tag)
-        sec = builder doc down fetch(tag) at-css("body .section")
-        sec at("id") put("section_" + tag)
+        sec = builder doc down fetch(tag value) at-css("body .section")
+        sec at("id") put("section_" + tag value)
         insert(sec)
 
     table-of-contents :=

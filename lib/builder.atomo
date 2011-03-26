@@ -22,17 +22,14 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     res = s
 
     @styles each (x):
-      res =! x scan(@doc, [s message to-sym] + s arguments)
+      when(x respond-to?(#scan)):
+        res =! x scan(@doc, [s message to-sym] + s arguments)
 
     Anatomy::AST::Send new(
       s line
       res at(0) to-s
       res drop(1) collect (c):
-        c match:
-          String ->
-            Anatomy::AST::Chunk new(s line, c)
-
-          _ -> c
+        Anatomy::AST::Node from(c)
     )
 
   build(t: Anatomy::AST::Tree) :=
@@ -40,6 +37,9 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
   build(c: Anatomy::AST::Chunk) :=
     text(c content)
+
+  build(s: Anatomy::AST::Value) :=
+    text(s value to-s)
 
   build(s: Anatomy::AST::Send) :=
     if(@markup respond-to?(s message))
