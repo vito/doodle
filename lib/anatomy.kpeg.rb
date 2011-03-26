@@ -313,12 +313,7 @@ class Anatomy::Parser
 
     def trim_leading(str, n)
       return str unless n > 0
-      trimmed = ""
-      str.each_line do |s|
-        s.sub!(/ {0,#{n.to_s}}/, "")
-        trimmed << s
-      end
-      trimmed
+      str.gsub!(/\n {0,#{n.to_s}}/, "\n")
     end
 
 
@@ -590,7 +585,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # chunk = (line:l < /([^\\\{\}]|\\[\\\{\}])+/ > (&"}" | comment)?:c { text.rstrip! if c                       Anatomy::AST::Chunk.new(l, trim_leading(text,s))                     } | nested)
+  # chunk = (line:l ((< /[^\\\{\}]/ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Anatomy::AST::Chunk.new(l, text)                     } | nested)
   def _chunk(s)
 
     _save = self.pos
@@ -604,42 +599,151 @@ class Anatomy::Parser
       self.pos = _save1
       break
     end
+    _save2 = self.pos
+    _ary = []
+
+    _save3 = self.pos
+    while true # sequence
+
+    _save4 = self.pos
+    while true # choice
     _text_start = self.pos
-    _tmp = scan(/\A(?-mix:([^\\\{\}]|\\[\\\{\}])+)/)
+    _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+    if _tmp
+      text = get_text(_text_start)
+    end
+    break if _tmp
+    self.pos = _save4
+
+    _save5 = self.pos
+    while true # sequence
+    _tmp = match_string("\\")
+    unless _tmp
+      self.pos = _save5
+      break
+    end
+    _text_start = self.pos
+    _tmp = scan(/\A(?-mix:[\\\{\}])/)
     if _tmp
       text = get_text(_text_start)
     end
     unless _tmp
+      self.pos = _save5
+    end
+    break
+    end # end sequence
+
+    break if _tmp
+    self.pos = _save4
+    break
+    end # end choice
+
+    unless _tmp
+      self.pos = _save3
+      break
+    end
+    @result = begin;  text ; end
+    _tmp = true
+    unless _tmp
+      self.pos = _save3
+    end
+    break
+    end # end sequence
+
+    if _tmp
+      _ary << @result
+      while true
+    
+    _save6 = self.pos
+    while true # sequence
+
+    _save7 = self.pos
+    while true # choice
+    _text_start = self.pos
+    _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+    if _tmp
+      text = get_text(_text_start)
+    end
+    break if _tmp
+    self.pos = _save7
+
+    _save8 = self.pos
+    while true # sequence
+    _tmp = match_string("\\")
+    unless _tmp
+      self.pos = _save8
+      break
+    end
+    _text_start = self.pos
+    _tmp = scan(/\A(?-mix:[\\\{\}])/)
+    if _tmp
+      text = get_text(_text_start)
+    end
+    unless _tmp
+      self.pos = _save8
+    end
+    break
+    end # end sequence
+
+    break if _tmp
+    self.pos = _save7
+    break
+    end # end choice
+
+    unless _tmp
+      self.pos = _save6
+      break
+    end
+    @result = begin;  text ; end
+    _tmp = true
+    unless _tmp
+      self.pos = _save6
+    end
+    break
+    end # end sequence
+
+        _ary << @result if _tmp
+        break unless _tmp
+      end
+      _tmp = true
+      @result = _ary
+    else
+      self.pos = _save2
+    end
+    chunk = @result
+    unless _tmp
       self.pos = _save1
       break
     end
-    _save2 = self.pos
+    _save9 = self.pos
 
-    _save3 = self.pos
+    _save10 = self.pos
     while true # choice
-    _save4 = self.pos
+    _save11 = self.pos
     _tmp = match_string("}")
-    self.pos = _save4
+    self.pos = _save11
     break if _tmp
-    self.pos = _save3
+    self.pos = _save10
     _tmp = apply(:_comment)
     break if _tmp
-    self.pos = _save3
+    self.pos = _save10
     break
     end # end choice
 
     @result = nil unless _tmp
     unless _tmp
       _tmp = true
-      self.pos = _save2
+      self.pos = _save9
     end
     c = @result
     unless _tmp
       self.pos = _save1
       break
     end
-    @result = begin;  text.rstrip! if c
-                      Anatomy::AST::Chunk.new(l, trim_leading(text,s))
+    @result = begin;  text = chunk.join
+                      text.rstrip! if c
+                      trim_leading(text, s)
+                      Anatomy::AST::Chunk.new(l, text)
                     ; end
     _tmp = true
     unless _tmp
@@ -707,7 +811,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # leading = (/\n+/ &(column:b /\s+/ column:a) { a - b } | { 0 })
+  # leading = (&(/\n+/ column:b /\s+/ column:a) { a - b } | { 0 })
   def _leading
 
     _save = self.pos
@@ -715,15 +819,15 @@ class Anatomy::Parser
 
     _save1 = self.pos
     while true # sequence
-    _tmp = scan(/\A(?-mix:\n+)/)
-    unless _tmp
-      self.pos = _save1
-      break
-    end
     _save2 = self.pos
 
     _save3 = self.pos
     while true # sequence
+    _tmp = scan(/\A(?-mix:\n+)/)
+    unless _tmp
+      self.pos = _save3
+      break
+    end
     _tmp = apply(:_column)
     b = @result
     unless _tmp
@@ -881,9 +985,9 @@ class Anatomy::Parser
   Rules[:_comment] = rule_info("comment", "\"{-\" in_multi")
   Rules[:_in_multi] = rule_info("in_multi", "(/[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ \"{-\" in_multi /[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ /[-{}]/ in_multi)")
   Rules[:_content] = rule_info("content", "comment? (chunk(s) | escaped):c comment? { c }")
-  Rules[:_chunk] = rule_info("chunk", "(line:l < /([^\\\\\\{\\}]|\\\\[\\\\\\{\\}])+/ > (&\"}\" | comment)?:c { text.rstrip! if c                       Anatomy::AST::Chunk.new(l, trim_leading(text,s))                     } | nested)")
+  Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Anatomy::AST::Chunk.new(l, text)                     } | nested)")
   Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Anatomy::AST::Send.new(l, n, as) }")
-  Rules[:_leading] = rule_info("leading", "(/\\n+/ &(column:b /\\s+/ column:a) { a - b } | { 0 })")
+  Rules[:_leading] = rule_info("leading", "(&(/\\n+/ column:b /\\s+/ column:a) { a - b } | { 0 })")
   Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { Anatomy::AST::Tree.new(l, cs) }")
   Rules[:_argument] = rule_info("argument", "nested")
   Rules[:_root] = rule_info("root", "line:l content(0)*:cs !. { Anatomy::AST::Tree.new(l, cs) }")
