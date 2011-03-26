@@ -36,6 +36,12 @@ module(Anatomy::Styles):
             ])
 
         Anatomy::Builder with(document at("body")):
+          div search:
+            form(#[action: "javascript:void(0)"]):
+              input(#[type: "text"; placeholder: "Search…"]) search!
+
+            ul search-results
+
           div sidebar!:
             Anatomy::Styles::Default table-of-contents(self)
 

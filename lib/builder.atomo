@@ -1,5 +1,5 @@
 class(Anatomy::Builder < Nokogiri::HTML::Builder):
-  attr-reader(#markup)
+  attr-reader(#markup, #styles)
 
   define(initialize(options = Hash new, root = nil, &block)):
     @markup = Anatomy::Markup new(self)
@@ -100,6 +100,10 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
       b = Anatomy::Builder new
       b body: build(node)
       b doc at-css("body") inner-html
+
+    define(inline(&body)):
+      b = Anatomy::Builder new(&body)
+      b doc children at(1)
 
     strip-tags(str) :=
       Nokogiri::XML::DocumentFragment parse(str) tap (x):

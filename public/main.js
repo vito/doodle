@@ -107,7 +107,7 @@ function bindTouch() {
 
 function bindSearch() {
     $("#search").keyup(function(){
-        $(".search-results").empty();
+        $(".search_results").empty();
 
         if (!$("#search").val().length)
             return;
@@ -127,10 +127,15 @@ function bindSearch() {
             matches.push(url);
 
             if (k == q)
-                $(".search-results").prepend(item);
+                $(".search_results").prepend(item);
             else
-                $(".search-results").append(item);
+                $(".search_results").append(item);
         });
+
+        if (matches.length == 0)
+            $(".search_results").hide();
+        else
+            $(".search_results").show();
     });
 }
 

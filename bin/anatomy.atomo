@@ -5,7 +5,7 @@ require("optparse")
 base = File expand-path("../../lib/", _FILE)
 
 "parser markup builder document auto-flow
-styles/default" split each (l):
+styles/default processor" split each (l):
   import(base + "/" + l)
 
 options = #[]
@@ -33,17 +33,4 @@ unless(file):
   puts(op help)
   exit(1)
 
-tree = Anatomy::Parser parse-file(file)
-
-unless(File directory?(output)):
-  Dir mkdir(output)
-
-public = File expand-path("../../public/", _FILE)
-unless(File directory?(output + "/public")):
-  Dir mkdir(output + "/public")
-
-FileUtils cp-r(public, output)
-
-Anatomy::Builder
-  run(tree)
-  save-to(options fetch(#output, "."))
+Anatomy::Processor process(file, output)

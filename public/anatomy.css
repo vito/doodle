@@ -97,29 +97,41 @@ dd {
     top: 0;
     bottom: 0;
 }
-#sidebar #search {
-    width: 10em;
+.search {
+    width: 15em;
+    position: fixed;
+    top: 2em;
+    right: 2em;
+    opacity: .5;
+}
+div.search:hover {
+    opacity: 1;
+}
+.search #search {
+    width: 15em;
     padding: .4em .5em .3em;
     border: .25em solid #eee;
-    margin-bottom: 2em;
 }
-#sidebar .search_results {
-    margin: .5em 0 2em 0;
+.search .search_results {
+    margin: 0;
+    border: .25em solid #eee;
+    border-top: 0;
+    display: none;
+    background: #fff;
 }
-#sidebar .search_results li {
+.search .search_results li {
     list-style: none;
     padding: .25em .5em;
-    background: rgba(255, 255, 255, .5);
 }
-#sidebar .search_results .parent {
+.search .search_results .parent {
     font-size: .9em;
     font-style: italic;
     color: #555;
 }
-#sidebar .search_results .parent a {
+.search .search_results .parent a {
     color: #222;
 }
-#sidebar .search_results .tag {
+.search .search_results .tag {
     font-style: italic;
     color: #555;
 }

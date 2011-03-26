@@ -1,0 +1,33 @@
+require("json")
+
+module(Anatomy):
+  module(Processor):
+    class(<< self):
+      define(process(in, out)):
+        tree = Anatomy::Parser parse-file(in)
+
+        b = Anatomy::Builder new
+        scanned = b scan(tree)
+        doc = b generate(scanned)
+
+        unless(File directory?(out)):
+          Dir mkdir(out)
+
+        public = File expand-path("../../public/", _FILE)
+        unless(File directory?(out + "/public")):
+          Dir mkdir(out + "/public")
+
+        FileUtils cp-r(public, out)
+
+        tags = []
+        doc search-tags each ([s, p, u]):
+          tags << [s, p to-html, u]
+
+        File open(out + "/public/tags.js", "w") (f):
+          f write("var SEARCH_TAGS = " + tags to-json + ";")
+
+        b styles each (s):
+          when(s respond-to?(#pre-save)):
+            s pre-save(doc, out)
+
+        doc save-to(out)

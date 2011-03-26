@@ -32,3 +32,41 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
     @down each (s):
       s save-to(where)
+
+  define(search-tags):
+    title = @title
+    tag = @tag
+
+    search-title = Anatomy::Builder run-strip(@title)
+    url = url
+
+    tags = [
+      [ search-title
+        Anatomy::Builder inline:
+          span title:
+            a(#[href: url]): build(title)
+        url
+      ]
+      [ @tag
+        Anatomy::Builder inline:
+          span tag:
+            text("tag: ")
+            code:
+              a(#[href: url]): text(tag)
+        url
+      ]
+    ]
+
+    @down each (d):
+      sts = d search-tags
+
+      sts each (t):
+        unless(t at(1) at-css(".parent")):
+          Anatomy::Builder with(t at(1)):
+            span parent:
+              text(" in ")
+              a(#[href: url]): build(title)
+
+      tags += sts
+
+    tags
