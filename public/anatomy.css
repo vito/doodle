@@ -183,6 +183,15 @@ table th, table td {
     padding: 0 .5em;
 }
 
+.margin_note {
+    width: 13em;
+    float: right;
+    margin-top: -1.5em;
+    margin-right: -15em;
+    padding: .5em;
+    color: #777;
+}
+
 .centered {
     text-align: center;
 }

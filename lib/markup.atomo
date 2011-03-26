@@ -15,6 +15,8 @@ class(Anatomy::Markup):
 
   verbatim(s) := pre verbatim: build(s)
 
+  code(s) := @builder code: build(s)
+
   centered(s) :=
     blockquote centered: build(s)
 
@@ -64,3 +66,7 @@ class(Anatomy::Markup):
 
   url(url) :=
     link(url, url)
+
+  margin(s) :=
+    div margin-note:
+      build(s)
