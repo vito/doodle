@@ -6,8 +6,61 @@ class(Anatomy::Markup):
   method-missing(name, *as, &b) :=
     @builder send(name, *as, &b)
 
-  italic(s) := em: build(s)
+  italic(s) := span(#[style: "font-style: italic"]): build(s)
 
-  bold(s) := strong: build(s)
+  alias-method(#emphasis, #italic)
+  alias-method(#emph, #italic)
+
+  bold(s) := span(#[style: "font-weight: bold"]): build(s)
 
   verbatim(s) := pre verbatim: build(s)
+
+  centered(s) :=
+    blockquote centered: build(s)
+
+  smaller(s) :=
+    span smaller: build(s)
+
+  larger(s) :=
+    span larger: build(s)
+
+  list(s) :=
+    ul: build(s)
+
+  item(s) :=
+    li: build(s)
+
+  paragraph(s) :=
+    p: build(s)
+
+  table(*ss) :=
+    @builder table:
+      body = ss pop
+
+      thead:
+        tr:
+          ss each (s):
+            th: build(s)
+
+      build(body)
+
+  row(*ss) :=
+    tr:
+      ss each (n):
+        td: build(n)
+
+  subscript(s) :=
+    @builder sub: build(s)
+
+  superscript(s) :=
+    sup: build(s)
+
+  linebreak := text("\n")
+  spaces(n) := text(" " * n value)
+
+  link(name, url) :=
+    a(#[href: Anatomy::Builder run-inline(url)]):
+      build(name)
+
+  url(url) :=
+    link(url, url)

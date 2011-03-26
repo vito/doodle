@@ -63,7 +63,7 @@ h3 {
 }
 
 p {
-    padding-bottom: 1em;
+    margin: 1em 0;
 }
 
 .toc {
@@ -171,6 +171,26 @@ code a:visited {
 pre a:hover,
 code a:hover {
     border-bottom-color: #333;
+}
+
+blockquote {
+    margin-left: 2em;
+}
+table p {
+    margin: .5em 0;
+}
+table th, table td {
+    padding: 0 .5em;
+}
+
+.centered {
+    text-align: center;
+}
+.smaller {
+    font-size: 82%;
+}
+.larger {
+    font-size: 122%;
 }
 
 .interaction .error:before {
