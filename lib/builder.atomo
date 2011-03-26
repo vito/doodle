@@ -54,10 +54,10 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
           )
         )
 
-  apply-styles :=
+  post-process :=
     @doc tap (d):
       @styles each (s):
-        s apply(d)
+        s post-process(d)
 
   generate(t, flow? = true, &tweaks) := do:
     @doc down each-value (d):
@@ -80,7 +80,7 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
     when(flow?):
       Anatomy::AutoFlow flow(@doc)
 
-    apply-styles
+    post-process
 
   class(<< self):
     define(run(t, flow? = true, &tweaks)):

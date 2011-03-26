@@ -15,7 +15,7 @@ module(Anatomy::Styles):
       ol toc table-of-contents!
 
     class(<< self):
-      define(apply(document)):
+      define(post-process(document)):
         when(document title):
           document at-css("head title") inner-html =
             Anatomy::Builder run-strip(document title)
@@ -113,7 +113,8 @@ module(Anatomy::Styles):
               d down each-value (s):
                 toc-leaf(b, s)
 
--- reopen, and add #standalone? with TOC semantics
+
+-- reopen, and add #top? with TOC semantics
 class(Anatomy::Document):
   attr-accessor(#toc?)
 
