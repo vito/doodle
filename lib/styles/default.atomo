@@ -44,6 +44,8 @@ module(Anatomy::Styles):
             @doc down each-value (d):
               toc-leaf(self, d)
 
+        document css("#content") wrap("<div id=\"main\"></div>")
+
       scan(doc, (#title . as)) := do:
         [title, tag] =
           as match:

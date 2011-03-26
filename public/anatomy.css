@@ -40,7 +40,7 @@ ol li {
     list-style: decimal;
 }
 ul li {
-    list-style: square;
+    list-style: disc;
 }
 
 strong { font-weight: bold }
@@ -77,21 +77,31 @@ dd {
     margin: 0 0 1em 2em;
 }
 
+#main {
+    width: 43em;
+    margin-left: 14em;
+}
+
+#content {
+    padding: 2em 2em 2em 1em;
+}
+
 #sidebar {
-    background: rgba(0, 0, 0, .06);
-    padding: 1em;
-    width: 16em;
+    color: #777;
+    padding: 2em;
+    width: 10em;
     height: 100%;
     overflow: auto;
     position: fixed;
-    right: 0;
+    left: 0;
     top: 0;
     bottom: 0;
 }
 #sidebar #search {
-    width: 14em;
-    padding: .5em;
-    border: 0;
+    width: 10em;
+    padding: .4em .5em .3em;
+    border: .25em solid #eee;
+    margin-bottom: 2em;
 }
 #sidebar .search_results {
     margin: .5em 0 2em 0;
@@ -116,6 +126,10 @@ dd {
 #sidebar h4 {
     font-style: italic;
 }
+#sidebar .toc {
+    margin-left: 1em;
+    font-size: 0.9em;
+}
 #sidebar .toc .toggle {
     margin-left: .5em;
     font-size: 10px;
@@ -124,15 +138,6 @@ dd {
 }
 #sidebar .toc ol {
     margin: 0 0 0 1em;
-}
-
-#content {
-    padding: 2em;
-    position: absolute;
-    left: 0;
-    right: 18em;
-    top: 0;
-    bottom: 0;
 }
 
 .section .section {
@@ -176,6 +181,7 @@ code a:hover {
 blockquote {
     margin-left: 2em;
 }
+
 table p {
     margin: .5em 0;
 }
