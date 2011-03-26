@@ -1,111 +1,133 @@
 module(Anatomy::Styles):
   module(Default):
-    : self ; apply(document) := do:
-      when(document title):
-        document at-css("head title") inner-html =
-          Anatomy::Builder run-strip(document title)
+    header := do:
+      title = builder doc title
+      send("h" + (builder doc depth + 1) to-s) section-header:
+        build(title)
 
-      Anatomy::Builder with(document at("head")):
-        link(#[
-          #rel -> "stylesheet"
-          #type -> "text/css"
-          #href -> "public/anatomy.css"
-        ])
+    section-reference(tag) :=
+      unless(builder doc toc?):
+        tag = Anatomy::Builder run-inline(tag)
+        sec = builder doc down fetch(tag) at-css("body .section")
+        sec at("id") put("section_" + tag)
+        insert(sec)
 
-      Anatomy::Builder with(document at("body")):
-        div sidebar!:
-          table-of-contents
+    table-of-contents :=
+      ol toc table-of-contents!
 
-      toc = document at-css("#table_of_contents")
+    class(<< self):
+      define(apply(document)):
+        when(document title):
+          document at-css("head title") inner-html =
+            Anatomy::Builder run-strip(document title)
 
-      document xpath(".//anatomy_section") each (r):
-        if(toc)
-          then:
-            r remove
-          else:
-            sub = document down fetch(r inner-html)
-            r replace(section(sub))
+        Anatomy::Builder with(document at("head")):
+          link(#[
+            #rel -> "stylesheet"
+            #type -> "text/css"
+            #href -> "public/anatomy.css"
+          ])
 
-      when(toc):
-        Anatomy::Builder with(toc):
-          @doc down each-value (d):
-            toc-leaf(d)
+        Anatomy::Builder with(document at("body")):
+          div sidebar!:
+            table-of-contents
 
-    : self ; section(document) :=
-      document at-css("body .section") tap (s):
-        s at("id") put("section_" + document tag)
+        toc = document at-css("#table_of_contents")
 
-    : self ; extend-object(markup) := do:
-      class(<< markup):
-        title(title, tag = title) := do:
-          builder doc title = title
-          builder doc tag = Anatomy::Builder run-sanitize(tag)
-          header
+        when(toc):
+          Anatomy::Builder with(toc):
+            @doc down each-value (d):
+              toc-leaf(d)
 
-        section(title, tag-or-body, body = nil) := do:
-          tag = Anatomy::Builder run-sanitize(
-            if(body nil?)
-              then: title
-              else: tag-or-body
-          )
-
-          body ||= tag-or-body
-
-          sub = Anatomy::Builder run(body) (doc, sub-builder):
-            doc up = builder doc
+      scan(doc, msg, args) :=
+        [msg, args] match:
+          [#title, [title, tag]] -> do:
             doc title = title
-            doc tag = tag
+            doc tag = Anatomy::Builder run-sanitize(tag)
+            [#header]
 
-            sub-builder header
+          [#title, [title]] -> do:
+            doc title = title
+            doc tag = Anatomy::Builder run-sanitize(title)
+            [#header]
 
-          builder doc down at(tag) put(sub)
+          [#include-section, [path]] -> do:
+            path = Anatomy::Builder run-inline(path)
+            tree = Anatomy::Parser parse-file(path)
 
-          anatomy-section: text(tag)
+            sub = Anatomy::Builder new
+            sub doc tree = sub scan(tree)
 
-        include-section(path) := do:
-          path = Anatomy::Builder run-inline(path)
-          tree = Anatomy::Parser parse-file(path)
+            sub doc up = doc
+            doc down at(sub doc tag) put(sub doc)
 
-          sub = Anatomy::Builder run(tree) (doc):
-            doc up = builder doc
+            [#section-reference, sub doc tag]
 
-          builder doc down at(sub tag) put(sub)
+          [#section, [title, body]] -> do:
+            sub = Anatomy::Builder new
+            sub doc title = title
+            sub doc tag = Anatomy::Builder run-sanitize(title)
 
-          anatomy-section: text(sub tag)
+            body nodes unshift(Anatomy::AST::Send new(0, "header", []))
+            sub doc tree = sub scan(body)
 
-        table-of-contents := do:
-          builder doc toc? = true
-          ol toc table-of-contents!
+            sub doc up = doc
+            doc down at(sub doc tag) put(sub doc)
 
-      class(<< markup builder):
-        attr-accessor(#toc)
+            [#section-reference, sub doc tag]
 
-        header :=
-          send("h" + (@doc depth + 1) to-s) section-header:
-            build(@doc title)
+          [#section, [title, tag, body]] -> do:
+            sub = Anatomy::Builder new
+            sub doc title = title
+            sub doc tag = Anatomy::Builder run-sanitize(tag)
 
-        define(table-of-contents):
-          unless(@doc down empty?):
-            h4("On this page:")
+            body nodes unshift(Anatomy::AST::Send new(0, "header", []))
+            sub doc tree = sub scan(body)
 
-            ol toc:
-              @doc down each-value (s):
-                toc-leaf(s)
+            sub doc up = doc
+            doc down at(sub doc tag) put(sub doc)
 
-          when(@doc up):
-            h4("Up one level:")
-            ol toc:
-              toc-leaf(@doc up)
+            [#section-reference, sub doc tag]
 
-        define(toc-leaf(d)):
-          li:
-            a(#[href: d url]):
-              build(d title)
+          [#table-of-contents, _] -> do:
+            doc toc? = true
+            [#table-of-contents]
 
-            unless(d down empty?):
-              ol:
-                d down each-value (s):
+          _ -> [msg] + args
+
+      section(document) :=
+        document at-css("body .section") tap (s):
+          s at("id") put("section_" + document tag)
+
+      define(extend-object(markup)):
+        -- TODO: super doesn't work in a block apparently?
+        super
+
+        class(<< markup builder):
+          attr-accessor(#toc)
+
+          define(table-of-contents):
+            unless(@doc down empty?):
+              h4("On this page:")
+
+              ol toc:
+                @doc down each-value (s):
                   toc-leaf(s)
+
+            when(@doc up):
+              h4("Up one level:")
+              ol toc:
+                toc-leaf(@doc up)
+
+          define(toc-leaf(d)):
+            li:
+              a(#[href: d url]):
+                build(d title)
+
+              unless(d down empty?):
+                ol:
+                  d down each-value (s):
+                    toc-leaf(s)
 
 -- reopen, and add #standalone? with TOC semantics
 class(Anatomy::Document):

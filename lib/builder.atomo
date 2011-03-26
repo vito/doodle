@@ -10,6 +10,31 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
     super
 
+  scan(t: Anatomy::AST::Tree) :=
+    Anatomy::AST::Tree new(
+      t line
+      t nodes collect (n): scan(n)
+    )
+
+  scan(c: Anatomy::AST::Chunk) := c
+
+  scan(s: Anatomy::AST::Send) := do:
+    res = s
+
+    @styles each (x):
+      res =! x scan(@doc, s message to-sym, s arguments)
+
+    Anatomy::AST::Send new(
+      s line
+      res at(0) to-s
+      res drop(1) collect (c):
+        c match:
+          String ->
+            Anatomy::AST::Chunk new(s line, c)
+
+          _ -> c
+    )
+
   build(t: Anatomy::AST::Tree) :=
     t nodes each (n): build(n)
 
@@ -34,27 +59,36 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
       @styles each (s):
         s apply(d)
 
+  generate(t, flow? = true, &tweaks) := do:
+    @doc down each-value (d):
+      Anatomy::Builder with(d) (s):
+        s generate(d tree)
+
+    html:
+      head:
+        title:
+          text("Untitled")
+
+      body:
+        div content!:
+          div section:
+            when(tweaks):
+              tweaks call(@doc, self)
+
+            build(t)
+
+    when(flow?):
+      Anatomy::AutoFlow flow(@doc)
+
+    apply-styles
+
   class(<< self):
     define(run(t, flow? = true, &tweaks)):
       b = Anatomy::Builder new
 
-      b html:
-          head:
-            title:
-              text("Untitled")
+      scanned = b scan(t)
 
-          body:
-            div content!:
-              div section:
-                when(tweaks):
-                  tweaks call(b doc, b)
-
-                build(t)
-
-      when(flow?):
-        Anatomy::AutoFlow flow(b doc)
-
-      b apply-styles
+      b generate(scanned, flow?, &tweaks)
 
     define(run-sanitize(node)):
       sanitize(run-inline(node))

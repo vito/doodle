@@ -1,11 +1,9 @@
 class(Anatomy::Document < Nokogiri::HTML::Document):
-  attr-accessor(#title, #tag, #tags, #styles, #up, #down)
+  attr-accessor(#title, #tag, #tags, #styles, #up, #down, #tree)
 
-  define(initialize):
+  define(initialize(@title = nil, @tag = "", @tree = nil)):
     super
 
-    @title = nil
-    @tag = ""
     @tags = Hash new
     @up = nil
     @down = Hash new -- tag -> document
