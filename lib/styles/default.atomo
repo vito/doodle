@@ -35,14 +35,14 @@ module(Anatomy::Styles):
 
         Anatomy::Builder with(document at("body")):
           div sidebar!:
-            table-of-contents
+            Anatomy::Styles::Default table-of-contents(self)
 
         toc = document at-css("#table_of_contents")
 
         when(toc):
           Anatomy::Builder with(toc):
             @doc down each-value (d):
-              toc-leaf(d)
+              toc-leaf(self, d)
 
       scan(doc, (#title . as)) := do:
         [title, tag] =
@@ -90,39 +90,28 @@ module(Anatomy::Styles):
 
       scan(_, x) := x
 
-      section(document) :=
-        document at-css("body .section") tap (s):
-          s at("id") put("section_" + document tag)
+      define(table-of-contents(b)):
+        unless(b doc down empty?):
+          b h4("On this page:")
 
-      define(extend-object(markup)):
-        -- TODO: super doesn't work in a block apparently?
-        super
+          b ol toc (b):
+            b doc down each-value (s):
+              toc-leaf(b, s)
 
-        class(<< markup builder):
-          attr-accessor(#toc)
+        when(b doc up):
+          b h4("Up one level:")
+          b ol toc (b):
+            toc-leaf(b, b doc up)
 
-          define(table-of-contents):
-            unless(@doc down empty?):
-              h4("On this page:")
+      define(toc-leaf(b, d)):
+        b li (b):
+          b a(#[href: d url]):
+            b build(d title)
 
-              ol toc:
-                @doc down each-value (s):
-                  toc-leaf(s)
-
-            when(@doc up):
-              h4("Up one level:")
-              ol toc:
-                toc-leaf(@doc up)
-
-          define(toc-leaf(d)):
-            li:
-              a(#[href: d url]):
-                build(d title)
-
-              unless(d down empty?):
-                ol:
-                  d down each-value (s):
-                    toc-leaf(s)
+          unless(d down empty?):
+            b ol (b):
+              d down each-value (s):
+                toc-leaf(b, s)
 
 -- reopen, and add #standalone? with TOC semantics
 class(Anatomy::Document):
