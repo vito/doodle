@@ -6,7 +6,7 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
     @tags = Hash new
     @up = nil
-    @down = Hash new -- tag -> document
+    @down = []
 
   top? := @up nil?
 
@@ -30,5 +30,5 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
       File open(where + "/" + @tag + ".html", "w")
            write(to-html)
 
-    @down each-value (s):
+    @down each (s):
       s save-to(where)

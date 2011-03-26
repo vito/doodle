@@ -60,7 +60,7 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
         s post-process(d)
 
   generate(t, flow? = true, &tweaks) := do:
-    @doc down each-value (d):
+    @doc down each (d):
       Anatomy::Builder with(d) (s):
         s generate(d tree)
 

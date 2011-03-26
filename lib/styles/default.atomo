@@ -7,7 +7,9 @@ module(Anatomy::Styles):
 
     section-reference(tag) :=
       unless(builder doc toc?):
-        sec = builder doc down fetch(tag value) at-css("body .section")
+        sec = builder doc down
+                select (d): d tag == tag value;
+                first at-css("body .section")
         sec at("id") put("section_" + tag value)
         insert(sec)
 
@@ -64,7 +66,7 @@ module(Anatomy::Styles):
         sub doc tree = sub scan(tree)
 
         sub doc up = doc
-        doc down at(sub doc tag) put(sub doc)
+        doc down << sub doc
 
         [#section-reference, sub doc tag]
 
@@ -82,7 +84,7 @@ module(Anatomy::Styles):
         sub doc tree = sub scan(body)
 
         sub doc up = doc
-        doc down at(sub doc tag) put(sub doc)
+        doc down << sub doc
 
         [#section-reference, sub doc tag]
 
@@ -97,7 +99,7 @@ module(Anatomy::Styles):
           b h4("On this page:")
 
           b ol toc (b):
-            b doc down each-value (s):
+            b doc down each (s):
               toc-leaf(b, s)
 
         when(b doc up):
@@ -112,7 +114,7 @@ module(Anatomy::Styles):
 
           unless(d down empty?):
             b ol (b):
-              d down each-value (s):
+              d down each (s):
                 toc-leaf(b, s)
 
 
