@@ -57,7 +57,8 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
   post-process :=
     @doc tap (d):
       @styles each (s):
-        s post-process(d)
+        when(s respond-to?(#post-process)):
+          s post-process(d)
 
   generate(t, flow? = true, &tweaks) := do:
     @doc down each (d):
