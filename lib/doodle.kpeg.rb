@@ -585,7 +585,7 @@ class Doodle::Parser
     return _tmp
   end
 
-  # chunk = (line:l ((< /[^\\\{\}]/ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)
+  # chunk = (line:l ((< /[^\\\{\}]/+ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)
   def _chunk(s)
 
     _save = self.pos
@@ -608,18 +608,28 @@ class Doodle::Parser
     _save4 = self.pos
     while true # choice
     _text_start = self.pos
+    _save5 = self.pos
     _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+    if _tmp
+      while true
+        _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+        break unless _tmp
+      end
+      _tmp = true
+    else
+      self.pos = _save5
+    end
     if _tmp
       text = get_text(_text_start)
     end
     break if _tmp
     self.pos = _save4
 
-    _save5 = self.pos
+    _save6 = self.pos
     while true # sequence
     _tmp = match_string("\\")
     unless _tmp
-      self.pos = _save5
+      self.pos = _save6
       break
     end
     _text_start = self.pos
@@ -628,7 +638,7 @@ class Doodle::Parser
       text = get_text(_text_start)
     end
     unless _tmp
-      self.pos = _save5
+      self.pos = _save6
     end
     break
     end # end sequence
@@ -654,24 +664,34 @@ class Doodle::Parser
       _ary << @result
       while true
     
-    _save6 = self.pos
+    _save7 = self.pos
     while true # sequence
 
-    _save7 = self.pos
+    _save8 = self.pos
     while true # choice
     _text_start = self.pos
+    _save9 = self.pos
     _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+    if _tmp
+      while true
+        _tmp = scan(/\A(?-mix:[^\\\{\}])/)
+        break unless _tmp
+      end
+      _tmp = true
+    else
+      self.pos = _save9
+    end
     if _tmp
       text = get_text(_text_start)
     end
     break if _tmp
-    self.pos = _save7
+    self.pos = _save8
 
-    _save8 = self.pos
+    _save10 = self.pos
     while true # sequence
     _tmp = match_string("\\")
     unless _tmp
-      self.pos = _save8
+      self.pos = _save10
       break
     end
     _text_start = self.pos
@@ -680,24 +700,24 @@ class Doodle::Parser
       text = get_text(_text_start)
     end
     unless _tmp
-      self.pos = _save8
+      self.pos = _save10
     end
     break
     end # end sequence
 
     break if _tmp
-    self.pos = _save7
+    self.pos = _save8
     break
     end # end choice
 
     unless _tmp
-      self.pos = _save6
+      self.pos = _save7
       break
     end
     @result = begin;  text ; end
     _tmp = true
     unless _tmp
-      self.pos = _save6
+      self.pos = _save7
     end
     break
     end # end sequence
@@ -715,25 +735,25 @@ class Doodle::Parser
       self.pos = _save1
       break
     end
-    _save9 = self.pos
-
-    _save10 = self.pos
-    while true # choice
     _save11 = self.pos
+
+    _save12 = self.pos
+    while true # choice
+    _save13 = self.pos
     _tmp = match_string("}")
-    self.pos = _save11
+    self.pos = _save13
     break if _tmp
-    self.pos = _save10
+    self.pos = _save12
     _tmp = apply(:_comment)
     break if _tmp
-    self.pos = _save10
+    self.pos = _save12
     break
     end # end choice
 
     @result = nil unless _tmp
     unless _tmp
       _tmp = true
-      self.pos = _save9
+      self.pos = _save11
     end
     c = @result
     unless _tmp
@@ -873,7 +893,7 @@ class Doodle::Parser
     return _tmp
   end
 
-  # nested = line:l "{" leading:s content(s)*:cs "}" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\n/, "")                       end                       Doodle::AST::Tree.new(l, cs)                     }
+  # nested = line:l "{" leading:s content(s)*:cs "}" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\n/, "")                       end                        Doodle::AST::Tree.new(l, cs)                     }
   def _nested
 
     _save = self.pos
@@ -917,6 +937,7 @@ class Doodle::Parser
                       when Doodle::AST::Chunk
                         cs[0].content.sub!(/^\n/, "")
                       end
+
                       Doodle::AST::Tree.new(l, cs)
                     ; end
     _tmp = true
@@ -990,10 +1011,10 @@ class Doodle::Parser
   Rules[:_comment] = rule_info("comment", "\"{-\" in_multi")
   Rules[:_in_multi] = rule_info("in_multi", "(/[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ \"{-\" in_multi /[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ /[-{}]/ in_multi)")
   Rules[:_content] = rule_info("content", "comment? (chunk(s) | escaped):c comment? { c }")
-  Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)")
+  Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/+ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)")
   Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Doodle::AST::Send.new(l, n, as) }")
   Rules[:_leading] = rule_info("leading", "(&(/\\n+/ column:b /\\s+/ column:a) { a - b } | { 0 })")
-  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\\n/, \"\")                       end                       Doodle::AST::Tree.new(l, cs)                     }")
+  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\\n/, \"\")                       end                        Doodle::AST::Tree.new(l, cs)                     }")
   Rules[:_argument] = rule_info("argument", "nested")
   Rules[:_root] = rule_info("root", "line:l content(0)*:cs !. { Doodle::AST::Tree.new(l, cs) }")
 end

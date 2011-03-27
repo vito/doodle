@@ -19,7 +19,7 @@
 
      content(s) = comment? (chunk(s) | escaped):c comment? { c }
 
-       chunk(s) = line:l ((< /[^\\\{\}]/ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c
+       chunk(s) = line:l ((< /[^\\\{\}]/+ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c
                     { text = chunk.join
                       text.rstrip! if c
                       trim_leading(text, s)
