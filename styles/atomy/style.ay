@@ -1,11 +1,35 @@
+$atomy-bindings = #[
+  default: binding
+]
+
 module(Doodle::Styles::Atomy):
   sub-style(Doodle::Styles::Code)
 
   _atomy(code) :=
     _highlight("Atomy", code)
 
-  _interaction(code) :=
+  _interaction(code, where = "default") := do:
+    name = string(where) to-sym
+    bnd = nil
+    -- TODO: broken
+    if($atomy-bindings has-key?(name))
+      then: bnd =! $atomy-bindings fetch(name)
+      else: bnd =! $atomy-bindings at(name) put(binding)
+
+    binding = $atomy-bindings
     pre interaction:
       string(code) each-line (l):
         span caret: text("> ")
+
+        l sub!(r{\n*$}, "\n")
         _highlight-inline("Atomy", l)
+
+        res = Atomy::Compiler evaluate(l, bnd)
+        _highlight-inline("Atomy", res pretty render)
+
+        text("\n")
+
+  _example(code, where = "default") := do:
+    div example:
+      em("Example:")
+      _interaction(code, where)
