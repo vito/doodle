@@ -1,0 +1,11 @@
+module(Doodle::Styles::Atomy):
+  sub-style(Doodle::Styles::Code)
+
+  _atomy(code) :=
+    _highlight("Atomy", code)
+
+  _interaction(code) :=
+    pre interaction:
+      string(code) each-line (l):
+        span caret: text("> ")
+        _highlight-inline("Atomy", l)

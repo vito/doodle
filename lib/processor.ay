@@ -11,11 +11,8 @@ module(Doodle):
         unless(File directory?(out)):
           Dir mkdir(out)
 
-        public = File expand-path("../../public/", _FILE)
         unless(File directory?(out + "/public")):
           Dir mkdir(out + "/public")
-
-        FileUtils cp-r(public, out)
 
         tags = []
         doc search-tags each ([s, p, u]):

@@ -3,11 +3,14 @@ require("nokogiri")
 require("json")
 require("optparse")
 
-base = File expand-path("../../lib/", _FILE)
+base = File expand-path("../../", _FILE)
 
 "parser builder markup document auto-flow
-styles/default processor" split each (l):
-  import(base + "/" + l)
+style processor" split each (l):
+  import(base + "/lib/" + l)
+
+"default code atomy" split each (s):
+  import(base + "/styles/" + s + "/style")
 
 options = #[]
 op = OptionParser new (o):

@@ -1,0 +1,27 @@
+module(Doodle::Styles):;
+
+macro (sub-style(sup))
+  `(do:
+      include(~sup)
+
+      : self ; post-process(d) :=
+        when(~sup respond-to?(#post-process)):
+          ~sup post-process(d)
+      
+      : self ; scan(x, y) :=
+        when(~sup respond-to?(#scan)):
+          ~sup scan(x, y)
+      
+      : self ; pre-save(d, w) :=
+        when(~sup respond-to?(#pre-save)):
+          ~sup pre-save(d, w))
+
+-- style helpers
+class(Doodle::Builder):
+  string(s: String) := s
+  string(s: Doodle::AST::Chunk) :=
+    s content
+  string(v: Doodle::AST::Value) :=
+    v value to-s
+  string(x) :=
+    Doodle::Builder run-inline(x)

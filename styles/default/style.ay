@@ -54,6 +54,11 @@ module(Doodle::Styles):
 
         document css("#content") wrap("<div id=\"main\"></div>")
 
+      pre-save(_, out) := do:
+        public = File expand-path("../public", _FILE)
+        Dir glob(public + "/*") each (f):
+          FileUtils cp(f, out + "/public")
+
       scan(doc, (#title . as)) := do:
         [title, tag] =
           as match:

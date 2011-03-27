@@ -1,0 +1,29 @@
+import(File expand-path("../broomhlda/lib/hl", _FILE))
+
+module(Doodle::Styles):
+  module(Code):
+    _highlight(language, source) :=
+      pre highlight:
+        _highlight-inline(language, source)
+
+    _highlight-inline(language, source) := do:
+      lang = string(language)
+      code = string(source)
+
+      HL::Formatters::Html new(
+        HL::Lexers const-get(lang) new(code) run
+      ) format-tokens(self)
+
+    class(<< self):
+      post-process(document) :=
+        Doodle::Builder with(document at-css("head")):
+          link(#[
+            rel: "stylesheet"
+            type: "text/css"
+            href: "public/highlight.css"
+          ])
+
+      pre-save(_, out) := do:
+        public = File expand-path("../public", _FILE)
+        Dir glob(public + "/*") each (f):
+          FileUtils cp(f, out + "/public")
