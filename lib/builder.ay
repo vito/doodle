@@ -1,12 +1,11 @@
 class(Doodle::Builder < Nokogiri::HTML::Builder):
-  attr-reader(#markup, #styles)
+  attr-reader(#styles)
 
   define(initialize(options = Hash new, root = nil, &block)):
-    @markup = Doodle::Markup new(self)
     @styles = [Doodle::Styles::Default]
 
     @styles each (m):
-      @markup extend(m)
+      extend(m)
 
     super
 
@@ -42,8 +41,8 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
     text(s value to-s)
 
   build(s: Doodle::AST::Send) :=
-    if(@markup respond-to?(s message))
-      then: @markup send(s message, *(s arguments))
+    if(respond-to?("_" + s message))
+      then: send("_" + s message, *(s arguments))
       else:
         raise(
           NoMethodError new(

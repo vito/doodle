@@ -1,42 +1,44 @@
-class(Doodle::Markup):
-  attr-accessor(#builder)
+class(Doodle::Builder):
+  _style(s) := do:
+    name = string(s)
+    style = Doodle::Styles const-get(name)
 
-  initialize(@builder) := #ok
+    unless(self is-a?(style)):
+      @styles << style
+      extend(style)
 
-  method-missing(name, *as, &b) :=
-    @builder send(name, *as, &b)
+  _italic(s) := span(#[style: "font-style: italic"]): build(s)
 
-  italic(s) := span(#[style: "font-style: italic"]): build(s)
+  alias-method(#_emphasis, #_italic)
+  alias-method(#_emph, #_italic)
 
-  alias-method(#emphasis, #italic)
-  alias-method(#emph, #italic)
+  _bold(s) := span(#[style: "font-weight: bold"]): build(s)
 
-  bold(s) := span(#[style: "font-weight: bold"]): build(s)
+  _verbatim(s) := pre verbatim: build(s)
 
-  verbatim(s) := pre verbatim: build(s)
+  _code(s) :=
+    code: build(s)
 
-  code(s) := @builder code: build(s)
-
-  centered(s) :=
+  _centered(s) :=
     blockquote centered: build(s)
 
-  smaller(s) :=
+  _smaller(s) :=
     span smaller: build(s)
 
-  larger(s) :=
+  _larger(s) :=
     span larger: build(s)
 
-  list(s) :=
+  _list(s) :=
     ul: build(s)
 
-  item(s) :=
+  _item(s) :=
     li: build(s)
 
-  paragraph(s) :=
+  _paragraph(s) :=
     p: build(s)
 
-  table(*ss) :=
-    @builder table:
+  _table(*ss) :=
+    table:
       body = ss pop
 
       thead:
@@ -46,27 +48,27 @@ class(Doodle::Markup):
 
       build(body)
 
-  row(*ss) :=
+  _row(*ss) :=
     tr:
       ss each (n):
         td: build(n)
 
-  subscript(s) :=
-    @builder sub: build(s)
+  _subscript(s) :=
+    self sub: build(s)
 
-  superscript(s) :=
+  _superscript(s) :=
     sup: build(s)
 
-  linebreak := text("\n")
-  spaces(n) := text(" " * n value)
+  _linebreak := text("\n")
+  _spaces(n) := text(" " * n value)
 
-  link(name, url) :=
+  _link(name, url) :=
     a(#[href: Doodle::Builder run-inline(url)]):
       build(name)
 
-  url(url) :=
+  _url(url) :=
     link(url, url)
 
-  margin(s) :=
+  _margin(s) :=
     div margin-note:
       build(s)

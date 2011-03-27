@@ -1,19 +1,19 @@
 module(Doodle::Styles):
   module(Default):
-    header := do:
-      title = builder doc title
-      send("h" + (builder doc depth + 1) to-s) section-header:
+    _header := do:
+      title = doc title
+      send("h" + (doc depth + 1) to-s) section-header:
         build(title)
 
-    section-reference(tag) :=
-      unless(builder doc toc?):
-        sec = builder doc down
+    _section-reference(tag) :=
+      unless(doc toc?):
+        sec = doc down
                 select (d): d tag == tag value;
                 first at-css("body .section")
         sec at("id") put("section_" + tag value)
         insert(sec)
 
-    table-of-contents :=
+    _table-of-contents :=
       ol toc table-of-contents!
 
     class(<< self):
