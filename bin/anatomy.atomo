@@ -1,5 +1,6 @@
 require("rubygems")
 require("nokogiri")
+require("json")
 require("optparse")
 
 base = File expand-path("../../lib/", _FILE)
