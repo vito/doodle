@@ -1,4 +1,4 @@
-class(Anatomy::Document < Nokogiri::HTML::Document):
+class(Doodle::Document < Nokogiri::HTML::Document):
   attr-accessor(#title, #tag, #tags, #styles, #up, #down, #tree)
 
   define(initialize(@title = nil, @tag = "", @tree = nil)):
@@ -37,18 +37,18 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
     title = @title
     tag = @tag
 
-    search-title = Anatomy::Builder run-strip(@title)
+    search-title = Doodle::Builder run-strip(@title)
     url = url
 
     tags = [
       [ search-title
-        Anatomy::Builder inline:
+        Doodle::Builder inline:
           span title:
             a(#[href: url]): build(title)
         url
       ]
       [ @tag
-        Anatomy::Builder inline:
+        Doodle::Builder inline:
           span tag:
             text("tag: ")
             code:
@@ -62,7 +62,7 @@ class(Anatomy::Document < Nokogiri::HTML::Document):
 
       sts each (t):
         unless(t at(1) at-css(".parent")):
-          Anatomy::Builder with(t at(1)):
+          Doodle::Builder with(t at(1)):
             span parent:
               text(" in ")
               a(#[href: url]): build(title)

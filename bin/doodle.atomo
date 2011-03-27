@@ -11,9 +11,9 @@ styles/default processor" split each (l):
 
 options = #[]
 op = OptionParser new (o):
-  o banner = "usage: anatomy [file] [options]"
+  o banner = "usage: doodle [file] [options]"
 
-  o on("-i", "--input FILE", "anatomy document") (v):
+  o on("-i", "--input FILE", "doodle document") (v):
     options at(#input) put(v)
 
   o on("-o", "--output DIRECTORY", "where to place output documents and files") (v):
@@ -34,4 +34,4 @@ unless(file):
   puts(op help)
   exit(1)
 
-Anatomy::Processor process(file, output)
+Doodle::Processor process(file, output)

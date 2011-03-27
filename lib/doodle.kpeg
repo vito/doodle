@@ -23,20 +23,20 @@
                     { text = chunk.join
                       text.rstrip! if c
                       trim_leading(text, s)
-                      Anatomy::AST::Chunk.new(l, text)
+                      Doodle::AST::Chunk.new(l, text)
                     }
                 | nested
 
         escaped = line:l "\\" identifier:n argument*:as
-                    { Anatomy::AST::Send.new(l, n, as) }
+                    { Doodle::AST::Send.new(l, n, as) }
 
         leading = &(/\n+/ column:b /\s+/ column:a) { a - b }
                 | { 0 }
 
          nested = line:l "{" leading:s content(s)*:cs "}"
-                    { Anatomy::AST::Tree.new(l, cs) }
+                    { Doodle::AST::Tree.new(l, cs) }
 
        argument = nested
 
            root = line:l content(0)*:cs !.
-                    { Anatomy::AST::Tree.new(l, cs) }
+                    { Doodle::AST::Tree.new(l, cs) }

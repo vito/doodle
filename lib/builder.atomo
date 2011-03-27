@@ -1,47 +1,47 @@
-class(Anatomy::Builder < Nokogiri::HTML::Builder):
+class(Doodle::Builder < Nokogiri::HTML::Builder):
   attr-reader(#markup, #styles)
 
   define(initialize(options = Hash new, root = nil, &block)):
-    @markup = Anatomy::Markup new(self)
-    @styles = [Anatomy::Styles::Default]
+    @markup = Doodle::Markup new(self)
+    @styles = [Doodle::Styles::Default]
 
     @styles each (m):
       @markup extend(m)
 
     super
 
-  scan(t: Anatomy::AST::Tree) :=
-    Anatomy::AST::Tree new(
+  scan(t: Doodle::AST::Tree) :=
+    Doodle::AST::Tree new(
       t line
       t nodes collect (n): scan(n)
     )
 
-  scan(c: Anatomy::AST::Chunk) := c
+  scan(c: Doodle::AST::Chunk) := c
 
-  scan(s: Anatomy::AST::Send) := do:
+  scan(s: Doodle::AST::Send) := do:
     res = s
 
     @styles each (x):
       when(x respond-to?(#scan)):
         res =! x scan(@doc, [s message to-sym] + s arguments)
 
-    Anatomy::AST::Send new(
+    Doodle::AST::Send new(
       s line
       res at(0) to-s
       res drop(1) collect (c):
-        Anatomy::AST::Node from(c)
+        Doodle::AST::Node from(c)
     )
 
-  build(t: Anatomy::AST::Tree) :=
+  build(t: Doodle::AST::Tree) :=
     t nodes each (n): build(n)
 
-  build(c: Anatomy::AST::Chunk) :=
+  build(c: Doodle::AST::Chunk) :=
     text(c content)
 
-  build(s: Anatomy::AST::Value) :=
+  build(s: Doodle::AST::Value) :=
     text(s value to-s)
 
-  build(s: Anatomy::AST::Send) :=
+  build(s: Doodle::AST::Send) :=
     if(@markup respond-to?(s message))
       then: @markup send(s message, *(s arguments))
       else:
@@ -61,7 +61,7 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
 
   generate(t, flow? = true, &tweaks) := do:
     @doc down each (d):
-      Anatomy::Builder with(d) (s):
+      Doodle::Builder with(d) (s):
         s generate(d tree)
 
     html:
@@ -78,13 +78,13 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
             build(t)
 
     when(flow?):
-      Anatomy::AutoFlow flow(@doc)
+      Doodle::AutoFlow flow(@doc)
 
     post-process
 
   class(<< self):
     define(run(t, flow? = true, &tweaks)):
-      b = Anatomy::Builder new
+      b = Doodle::Builder new
 
       scanned = b scan(t)
 
@@ -97,12 +97,12 @@ class(Anatomy::Builder < Nokogiri::HTML::Builder):
       strip-tags(run-inline(node))
 
     define(run-inline(node)):
-      b = Anatomy::Builder new
+      b = Doodle::Builder new
       b body: build(node)
       b doc at-css("body") inner-html
 
     define(inline(&body)):
-      b = Anatomy::Builder new(&body)
+      b = Doodle::Builder new(&body)
       b doc children at(1)
 
     strip-tags(str) :=

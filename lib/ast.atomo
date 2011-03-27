@@ -1,4 +1,4 @@
-module(Anatomy):
+module(Doodle):
   module(AST):
     data(Node):
       Chunk(@line, @content)

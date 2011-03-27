@@ -1,10 +1,10 @@
-module(Anatomy):
+module(Doodle):
   module(Processor):
     class(<< self):
       define(process(in, out)):
-        tree = Anatomy::Parser parse-file(in)
+        tree = Doodle::Parser parse-file(in)
 
-        b = Anatomy::Builder new
+        b = Doodle::Builder new
         scanned = b scan(tree)
         doc = b generate(scanned)
 

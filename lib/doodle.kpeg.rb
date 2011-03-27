@@ -1,4 +1,4 @@
-class Anatomy::Parser
+class Doodle::Parser
 # STANDALONE START
     def setup_parser(str, debug=false)
       @string = str
@@ -585,7 +585,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # chunk = (line:l ((< /[^\\\{\}]/ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Anatomy::AST::Chunk.new(l, text)                     } | nested)
+  # chunk = (line:l ((< /[^\\\{\}]/ > | "\\" < /[\\\{\}]/ >) { text })+:chunk (&"}" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)
   def _chunk(s)
 
     _save = self.pos
@@ -743,7 +743,7 @@ class Anatomy::Parser
     @result = begin;  text = chunk.join
                       text.rstrip! if c
                       trim_leading(text, s)
-                      Anatomy::AST::Chunk.new(l, text)
+                      Doodle::AST::Chunk.new(l, text)
                     ; end
     _tmp = true
     unless _tmp
@@ -764,7 +764,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # escaped = line:l "\\" identifier:n argument*:as { Anatomy::AST::Send.new(l, n, as) }
+  # escaped = line:l "\\" identifier:n argument*:as { Doodle::AST::Send.new(l, n, as) }
   def _escaped
 
     _save = self.pos
@@ -799,7 +799,7 @@ class Anatomy::Parser
       self.pos = _save
       break
     end
-    @result = begin;  Anatomy::AST::Send.new(l, n, as) ; end
+    @result = begin;  Doodle::AST::Send.new(l, n, as) ; end
     _tmp = true
     unless _tmp
       self.pos = _save
@@ -873,7 +873,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # nested = line:l "{" leading:s content(s)*:cs "}" { Anatomy::AST::Tree.new(l, cs) }
+  # nested = line:l "{" leading:s content(s)*:cs "}" { Doodle::AST::Tree.new(l, cs) }
   def _nested
 
     _save = self.pos
@@ -913,7 +913,7 @@ class Anatomy::Parser
       self.pos = _save
       break
     end
-    @result = begin;  Anatomy::AST::Tree.new(l, cs) ; end
+    @result = begin;  Doodle::AST::Tree.new(l, cs) ; end
     _tmp = true
     unless _tmp
       self.pos = _save
@@ -932,7 +932,7 @@ class Anatomy::Parser
     return _tmp
   end
 
-  # root = line:l content(0)*:cs !. { Anatomy::AST::Tree.new(l, cs) }
+  # root = line:l content(0)*:cs !. { Doodle::AST::Tree.new(l, cs) }
   def _root
 
     _save = self.pos
@@ -964,7 +964,7 @@ class Anatomy::Parser
       self.pos = _save
       break
     end
-    @result = begin;  Anatomy::AST::Tree.new(l, cs) ; end
+    @result = begin;  Doodle::AST::Tree.new(l, cs) ; end
     _tmp = true
     unless _tmp
       self.pos = _save
@@ -985,10 +985,10 @@ class Anatomy::Parser
   Rules[:_comment] = rule_info("comment", "\"{-\" in_multi")
   Rules[:_in_multi] = rule_info("in_multi", "(/[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ \"{-\" in_multi /[^\\-\\{\\}]*/ \"-}\" | /[^\\-\\{\\}]*/ /[-{}]/ in_multi)")
   Rules[:_content] = rule_info("content", "comment? (chunk(s) | escaped):c comment? { c }")
-  Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Anatomy::AST::Chunk.new(l, text)                     } | nested)")
-  Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Anatomy::AST::Send.new(l, n, as) }")
+  Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)")
+  Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Doodle::AST::Send.new(l, n, as) }")
   Rules[:_leading] = rule_info("leading", "(&(/\\n+/ column:b /\\s+/ column:a) { a - b } | { 0 })")
-  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { Anatomy::AST::Tree.new(l, cs) }")
+  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { Doodle::AST::Tree.new(l, cs) }")
   Rules[:_argument] = rule_info("argument", "nested")
-  Rules[:_root] = rule_info("root", "line:l content(0)*:cs !. { Anatomy::AST::Tree.new(l, cs) }")
+  Rules[:_root] = rule_info("root", "line:l content(0)*:cs !. { Doodle::AST::Tree.new(l, cs) }")
 end

@@ -1,4 +1,4 @@
-module(Anatomy::Styles):
+module(Doodle::Styles):
   module(Default):
     header := do:
       title = builder doc title
@@ -20,13 +20,13 @@ module(Anatomy::Styles):
       define(post-process(document)):
         when(document title):
           document at-css("head title") inner-html =
-            Anatomy::Builder run-strip(document title)
+            Doodle::Builder run-strip(document title)
 
-        Anatomy::Builder with(document at("head")):
+        Doodle::Builder with(document at("head")):
           link(#[
             #rel -> "stylesheet"
             #type -> "text/css"
-            #href -> "public/anatomy.css"
+            #href -> "public/doodle.css"
           ])
 
           ["jquery", "jquery.hotkeys", "tags", "main"] each (js):
@@ -35,7 +35,7 @@ module(Anatomy::Styles):
               src: "public/" + js + ".js"
             ])
 
-        Anatomy::Builder with(document at("body")):
+        Doodle::Builder with(document at("body")):
           div search:
             form(#[action: "javascript:void(0)"]):
               input(#[type: "text"; placeholder: "Search…"]) search!
@@ -43,12 +43,12 @@ module(Anatomy::Styles):
             ul search-results
 
           div sidebar!:
-            Anatomy::Styles::Default table-of-contents(self)
+            Doodle::Styles::Default table-of-contents(self)
 
         toc = document at-css("#table_of_contents")
 
         when(toc):
-          Anatomy::Builder with(toc):
+          Doodle::Builder with(toc):
             @doc down each (d):
               toc-leaf(self, d)
 
@@ -61,14 +61,14 @@ module(Anatomy::Styles):
             _ -> as first(2)
 
         doc title = title
-        doc tag = Anatomy::Builder run-sanitize(tag)
+        doc tag = Doodle::Builder run-sanitize(tag)
         [#header]
 
       scan(doc, [#include-section, where]) := do:
-        path = Anatomy::Builder run-inline(where)
-        tree = Anatomy::Parser parse-file(path)
+        path = Doodle::Builder run-inline(where)
+        tree = Doodle::Parser parse-file(path)
 
-        sub = Anatomy::Builder new
+        sub = Doodle::Builder new
         sub doc tree = sub scan(tree)
 
         sub doc up = doc
@@ -82,11 +82,11 @@ module(Anatomy::Styles):
             [t, b] -> [t, t, b]
             _ -> as take(3)
 
-        sub = Anatomy::Builder new
+        sub = Doodle::Builder new
         sub doc title = title
-        sub doc tag = Anatomy::Builder run-sanitize(tag)
+        sub doc tag = Doodle::Builder run-sanitize(tag)
 
-        body nodes unshift(Anatomy::AST::Send new(0, "header", []))
+        body nodes unshift(Doodle::AST::Send new(0, "header", []))
         sub doc tree = sub scan(body)
 
         sub doc up = doc
@@ -125,7 +125,7 @@ module(Anatomy::Styles):
 
 
 -- reopen, and add #top? with TOC semantics
-class(Anatomy::Document):
+class(Doodle::Document):
   attr-accessor(#toc?)
 
   top? := @up nil? || @up toc?

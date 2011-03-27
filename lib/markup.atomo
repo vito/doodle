@@ -1,4 +1,4 @@
-class(Anatomy::Markup):
+class(Doodle::Markup):
   attr-accessor(#builder)
 
   initialize(@builder) := #ok
@@ -61,7 +61,7 @@ class(Anatomy::Markup):
   spaces(n) := text(" " * n value)
 
   link(name, url) :=
-    a(#[href: Anatomy::Builder run-inline(url)]):
+    a(#[href: Doodle::Builder run-inline(url)]):
       build(name)
 
   url(url) :=

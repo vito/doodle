@@ -1,6 +1,6 @@
-module(Anatomy):
+module(Doodle):
   base = File expand-path("../", _FILE)
-  require(base + "/anatomy.kpeg.rb")
+  require(base + "/doodle.kpeg.rb")
 
   class(Parser):
     class(<< self):

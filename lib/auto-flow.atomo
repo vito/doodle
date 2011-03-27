@@ -1,4 +1,4 @@
-module(Anatomy::AutoFlow):
+module(Doodle::AutoFlow):
   class(<< self):
     flow?(x) := x description && x description inline?
     flow?(x: Nokogiri::XML::Text) :=
