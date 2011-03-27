@@ -4,7 +4,7 @@ class(Doodle::Document < Nokogiri::HTML::Document):
   define(initialize(@title = nil, @tag = "", @tree = nil)):
     super
 
-    @tags = Hash new
+    @tags = [] -- [search term, pretty result, url]
     @up = nil
     @down = []
 
@@ -55,7 +55,7 @@ class(Doodle::Document < Nokogiri::HTML::Document):
               a(#[href: url]): text(tag)
         url
       ]
-    ]
+    ] + @tags
 
     @down each (d):
       sts = d search-tags
