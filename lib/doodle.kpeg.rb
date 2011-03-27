@@ -873,7 +873,7 @@ class Doodle::Parser
     return _tmp
   end
 
-  # nested = line:l "{" leading:s content(s)*:cs "}" { Doodle::AST::Tree.new(l, cs) }
+  # nested = line:l "{" leading:s content(s)*:cs "}" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\n/, "")                       end                       Doodle::AST::Tree.new(l, cs)                     }
   def _nested
 
     _save = self.pos
@@ -913,7 +913,12 @@ class Doodle::Parser
       self.pos = _save
       break
     end
-    @result = begin;  Doodle::AST::Tree.new(l, cs) ; end
+    @result = begin;  case cs[0]
+                      when Doodle::AST::Chunk
+                        cs[0].content.sub!(/^\n/, "")
+                      end
+                      Doodle::AST::Tree.new(l, cs)
+                    ; end
     _tmp = true
     unless _tmp
       self.pos = _save
@@ -988,7 +993,7 @@ class Doodle::Parser
   Rules[:_chunk] = rule_info("chunk", "(line:l ((< /[^\\\\\\{\\}]/ > | \"\\\\\" < /[\\\\\\{\\}]/ >) { text })+:chunk (&\"}\" | comment)?:c { text = chunk.join                       text.rstrip! if c                       trim_leading(text, s)                       Doodle::AST::Chunk.new(l, text)                     } | nested)")
   Rules[:_escaped] = rule_info("escaped", "line:l \"\\\\\" identifier:n argument*:as { Doodle::AST::Send.new(l, n, as) }")
   Rules[:_leading] = rule_info("leading", "(&(/\\n+/ column:b /\\s+/ column:a) { a - b } | { 0 })")
-  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { Doodle::AST::Tree.new(l, cs) }")
+  Rules[:_nested] = rule_info("nested", "line:l \"{\" leading:s content(s)*:cs \"}\" { case cs[0]                       when Doodle::AST::Chunk                         cs[0].content.sub!(/^\\n/, \"\")                       end                       Doodle::AST::Tree.new(l, cs)                     }")
   Rules[:_argument] = rule_info("argument", "nested")
   Rules[:_root] = rule_info("root", "line:l content(0)*:cs !. { Doodle::AST::Tree.new(l, cs) }")
 end

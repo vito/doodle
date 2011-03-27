@@ -34,7 +34,13 @@
                 | { 0 }
 
          nested = line:l "{" leading:s content(s)*:cs "}"
-                    { Doodle::AST::Tree.new(l, cs) }
+                    { case cs[0]
+                      when Doodle::AST::Chunk
+                        cs[0].content.sub!(/^\n/, "")
+                      end
+
+                      Doodle::AST::Tree.new(l, cs)
+                    }
 
        argument = nested
 
