@@ -109,8 +109,10 @@ function bindSearch() {
     $("#search").keyup(function(){
         $(".search_results").empty();
 
-        if (!$("#search").val().length)
+        if (!$("#search").val().length) {
+            $(".search_results").hide();
             return;
+        }
 
         var q = $("#search").val().toLowerCase(),
             matches = [];

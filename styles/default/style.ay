@@ -38,7 +38,7 @@ module(Doodle::Styles):
         Doodle::Builder with(document at("body")):
           div search:
             form(#[action: "javascript:void(0)"]):
-              input(#[type: "text"; placeholder: "Search…"]) search!
+              input(#[type: "text"; placeholder: "Search…"; autocomplete: "off"]) search!
 
             ul search-results
 
