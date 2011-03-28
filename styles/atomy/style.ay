@@ -33,3 +33,44 @@ module(Doodle::Styles::Atomy):
     div example:
       em("Example:")
       _interaction(code, where)
+
+  _define(thumb, description = nil) := do:
+    (signature . rest) = string(thumb) split("\n")
+    result = rest pop sub(r{&gt; }, "")
+    specs = rest collect (s): s sub(r{\| }, "")
+
+    meth = Atomy::Parser parse-string(signature) nodes first
+    name = meth method-name
+    url = definition-url(meth method-name)
+
+    @doc tags << [
+      name
+      Doodle::Builder inline:
+        span title:
+          code:
+            a(#[href: url]): text(name)
+      url
+    ]
+
+    div(#[id: "definition_" + meth method-name]) definition:
+      pre thumb:
+        _highlight-inline("Atomy", signature)
+
+        text(" ")
+
+        span definition-result-arrow:
+          cdata("&rArr;")
+
+        text(" ")
+
+        _highlight-inline("Atomy", result)
+
+        specs each (s):
+          text("\n  | ")
+          _highlight-inline("Atomy", s)
+
+      when(description):
+        build(description)
+
+  definition-url(name) :=
+    @doc url sub(r{#.*$}, "") + "#definition_" + name
