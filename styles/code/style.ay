@@ -10,9 +10,12 @@ module(Doodle::Styles):
       lang = string(language)
       code = string(source)
 
-      HL::Formatters::Html new(
+      AutoLinker new(
         HL::Lexers const-get(lang) new(code) run
       ) format-tokens(self)
+
+    auto-link?("n") := true
+    auto-link?(_) := false
 
     class(<< self):
       post-process(document) :=
@@ -27,3 +30,17 @@ module(Doodle::Styles):
         public = File expand-path("../public", _FILE)
         Dir glob(public + "/*") each (f):
           FileUtils cp(f, out + "/public")
+
+
+class(AutoLinker < HL::Formatters::Html):
+  define(format-tokens(to)):
+    @tokens each (t):
+      to span(#[class: t type tag]) (s):
+        if(to auto-link?(t type tag) &&
+            (url = to doc tag-url(t contents)))
+          then:
+            s a(#[href: url]): text(t contents)
+          else:
+            s text(t contents)
+
+    to

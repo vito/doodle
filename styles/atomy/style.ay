@@ -71,5 +71,7 @@ module(Doodle::Styles::Atomy):
       when(description):
         build(description)
 
+  auto-link?("o") := true
+
   definition-url(name) :=
     @doc url sub(r{#.*$}, "") + "#definition_" + name
