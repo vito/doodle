@@ -24,9 +24,9 @@ module(Doodle::Styles):
 
         Doodle::Builder with(document at("head")):
           link(#[
-            #rel -> "stylesheet"
-            #type -> "text/css"
-            #href -> "public/doodle.css"
+            rel: "stylesheet"
+            type: "text/css"
+            href: "public/doodle.css"
           ])
 
           ["jquery", "jquery.hotkeys", "tags", "main"] each (js):
@@ -38,7 +38,11 @@ module(Doodle::Styles):
         Doodle::Builder with(document at("body")):
           div search:
             form(#[action: "javascript:void(0)"]):
-              input(#[type: "text"; placeholder: "Search…"; autocomplete: "off"]) search!
+              input(#[
+                type: "text"
+                placeholder: "Search…"
+                autocomplete: "off"
+              ]) search!
 
             ul search-results
 
