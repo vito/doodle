@@ -43,14 +43,13 @@ module(Doodle::Styles::Atomy):
     name = meth method-name
     url = definition-url(meth method-name)
 
-    @doc tags << [
-      name
+    @doc tags at(name) put([
       Doodle::Builder inline:
         span title:
           code:
             a(#[href: url]): text(name)
       url
-    ]
+    ])
 
     div(#[id: "definition_" + meth method-name]) definition:
       pre thumb:

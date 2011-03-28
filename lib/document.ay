@@ -4,7 +4,7 @@ class(Doodle::Document < Nokogiri::HTML::Document):
   define(initialize(@title = nil, @tag = "", @tree = nil)):
     super
 
-    @tags = [] -- [search term, pretty result, url]
+    @tags = #[] -- tag => [pretty, url]
     @up = nil
     @down = []
 
@@ -33,6 +33,21 @@ class(Doodle::Document < Nokogiri::HTML::Document):
     @down each (s):
       s save-to(where)
 
+  define(tag-url(tag, up? = true)):
+    if(@tags has-key?(tag))
+      then: @tags fetch(tag) at(1)
+      else:
+        @down each (d):
+          when(res = d tag-url(tag, false)):
+            return(res)
+
+        when(up? && @up):
+          (@up down - [self]) each (d):
+            when(res = d tag-url(tag)):
+              return(res)
+
+        nil
+
   define(search-tags):
     title = @title
     tag = @tag
@@ -55,7 +70,10 @@ class(Doodle::Document < Nokogiri::HTML::Document):
               a(#[href: url]): text(tag)
         url
       ]
-    ] + @tags
+    ]
+
+    @tags each-pair (k, v):
+      tags << [k] + v
 
     @down each (d):
       sts = d search-tags
