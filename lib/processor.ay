@@ -15,13 +15,13 @@ module(Doodle):
           Dir mkdir(out + "/public")
 
         tags = []
-        doc search-tags each ([s, p, u]):
+        doc search-tags each [[s, p, u]]:
           tags << [s, p to-html, u]
 
-        File open(out + "/public/tags.js", "w") (f):
+        File open(out + "/public/tags.js", "w") [f]:
           f write("var SEARCH_TAGS = " + tags to-json + ";")
 
-        b styles each (s):
+        b styles each [s]:
           when(s respond-to?(#pre-save)):
             s pre-save(doc, out)
 

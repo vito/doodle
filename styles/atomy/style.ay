@@ -18,10 +18,10 @@ module(Doodle::Styles::Atomy):
 
     binding = $atomy-bindings
     pre interaction:
-      string(code) each-line (l):
+      string(code) each-line [l]:
         span caret: text("> ")
 
-        l sub!(r{\n*$}, "\n")
+        l sub!(r"\n*$", "\n")
         _highlight-inline("Atomy", l)
 
         res = Atomy::Compiler evaluate(l, bnd)
@@ -36,8 +36,8 @@ module(Doodle::Styles::Atomy):
 
   _define(thumb, description = nil) := do:
     (signature . rest) = string(thumb) split("\n")
-    result = rest pop sub(r{&gt; }, "")
-    specs = rest collect (s): s sub(r{\| }, "")
+    result = rest pop sub(r"&gt; ", "")
+    specs = rest collect [s]: s sub(r"\| ", "")
 
     meth = Atomy::Parser parse-string(signature) nodes first
     name = meth method-name
@@ -64,7 +64,7 @@ module(Doodle::Styles::Atomy):
 
         _highlight-inline("Atomy", result)
 
-        specs each (s):
+        specs each [s]:
           text("\n  | ")
           _highlight-inline("Atomy", s)
 
@@ -74,4 +74,4 @@ module(Doodle::Styles::Atomy):
   auto-link?("o") := true
 
   definition-url(name) :=
-    @doc url sub(r{#.*$}, "") + "#definition_" + name
+    @doc url sub(r"#.*$", "") + "#definition_" + name

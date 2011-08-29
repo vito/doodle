@@ -28,14 +28,14 @@ module(Doodle::Styles):
 
       pre-save(_, out) := do:
         public = File expand-path("../public", _FILE)
-        Dir glob(public + "/*") each (f):
+        Dir glob(public + "/*") each [f]:
           FileUtils cp(f, out + "/public")
 
 
 class(AutoLinker < HL::Formatters::Html):
   define(format-tokens(to)):
-    @tokens each (t):
-      to span(#[class: t type tag]) (s):
+    @tokens each [t]:
+      to span(#[class: t type tag]) [s]:
         if(to auto-link?(t type tag) &&
             (url = to doc tag-url(t contents)))
           then:

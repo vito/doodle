@@ -4,7 +4,7 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
   define(initialize(options = Hash new, root = nil, &block)):
     @styles = [Doodle::Styles::Default]
 
-    @styles each (m):
+    @styles each [m]:
       extend(m)
 
     super
@@ -12,7 +12,7 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
   scan(t: Doodle::AST::Tree) :=
     Doodle::AST::Tree new(
       t line
-      t nodes collect (n): scan(n)
+      t nodes collect [n]: scan(n)
     )
 
   scan(c: Doodle::AST::Chunk) := c
@@ -20,19 +20,19 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
   scan(s: Doodle::AST::Send) := do:
     res = s
 
-    @styles each (x):
+    @styles each [x]:
       when(x respond-to?(#scan)):
         res =! x scan(@doc, [s message to-sym] + s arguments)
 
     Doodle::AST::Send new(
       s line
       res at(0) to-s
-      res drop(1) collect (c):
+      res drop(1) collect [c]:
         Doodle::AST::Node from(c)
     )
 
   build(t: Doodle::AST::Tree) :=
-    t nodes each (n): build(n)
+    t nodes each [n]: build(n)
 
   build(c: Doodle::AST::Chunk) :=
     text(c content)
@@ -54,14 +54,14 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
         )
 
   post-process :=
-    @doc tap (d):
-      @styles each (s):
+    @doc tap [d]:
+      @styles each [s]:
         when(s respond-to?(#post-process)):
           s post-process(d)
 
   generate(t, flow? = true, &tweaks) := do:
-    @doc down each (d):
-      Doodle::Builder with(d) (s):
+    @doc down each [d]:
+      Doodle::Builder with(d) [s]:
         s generate(d tree)
 
     html:
@@ -106,8 +106,8 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
       b doc children at(1)
 
     strip-tags(str) :=
-      Nokogiri::XML::DocumentFragment parse(str) tap (x):
-        x traverse (node):
+      Nokogiri::XML::DocumentFragment parse(str) tap [x]:
+        x traverse [node]:
           when(node is-a?(Nokogiri::XML::Element)):
             node replace(
               Nokogiri::XML::Text new(
@@ -118,6 +118,6 @@ class(Doodle::Builder < Nokogiri::HTML::Builder):
 
     sanitize(str) :=
       strip-tags(str) to-html
-        gsub(r{\s+}, "-")
-        gsub(r{[^[:alnum:]_\-:.]}, "")
+        gsub(r"\s+", "-")
+        gsub(r"[^[:alnum:]_\-:.]", "")
         downcase

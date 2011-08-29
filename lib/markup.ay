@@ -43,14 +43,14 @@ class(Doodle::Builder):
 
       thead:
         tr:
-          ss each (s):
+          ss each [s]:
             th: build(s)
 
       build(body)
 
   _row(*ss) :=
     tr:
-      ss each (n):
+      ss each [n]:
         td: build(n)
 
   _subscript(s) :=

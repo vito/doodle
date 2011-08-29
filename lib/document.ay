@@ -23,26 +23,26 @@ class(Doodle::Document < Nokogiri::HTML::Document):
   url :=
     if(top?)
       then: @tag + ".html"
-      else: @up url sub(r{#.*$}, "") + "#section_" + @tag
+      else: @up url sub(r"#.*$", "") + "#section_" + @tag
 
   save-to(where) := do:
     when(top?):
       File open(where + "/" + @tag + ".html", "w")
            write(to-html)
 
-    @down each (s):
+    @down each [s]:
       s save-to(where)
 
   define(tag-url(tag, up? = true)):
     if(@tags has-key?(tag))
       then: @tags fetch(tag) at(1)
       else:
-        @down each (d):
+        @down each [d]:
           when(res = d tag-url(tag, false)):
             return(res)
 
         when(up? && @up):
-          (@up down - [self]) each (d):
+          (@up down - [self]) each [d]:
             when(res = d tag-url(tag)):
               return(res)
 
@@ -72,13 +72,13 @@ class(Doodle::Document < Nokogiri::HTML::Document):
       ]
     ]
 
-    @tags each-pair (k, v):
+    @tags each-pair [k, v]:
       tags << [k] + v
 
-    @down each (d):
+    @down each [d]:
       sts = d search-tags
 
-      sts each (t):
+      sts each [t]:
         unless(t at(1) at-css(".parent")):
           Doodle::Builder with(t at(1)):
             span parent:

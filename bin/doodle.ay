@@ -6,20 +6,22 @@ require("optparse")
 base = File expand-path("../../", _FILE)
 
 "parser builder markup document auto-flow
-style processor" split each (l):
+style processor" split each [l]:
+  i"loading #{l}" println
   import(base + "/lib/" + l)
 
-"default code atomy" split each (s):
+"default code atomy" split each [s]:
+  i"loading style #{s}" println
   import(base + "/styles/" + s + "/style")
 
 options = #[]
-op = OptionParser new (o):
+op = OptionParser new [o]:
   o banner = "usage: doodle [file] [options]"
 
-  o on("-i", "--input FILE", "doodle document") (v):
+  o on("-i", "--input FILE", "doodle document") [v]:
     options at(#input) put(v)
 
-  o on("-o", "--output DIRECTORY", "where to place output documents and files") (v):
+  o on("-o", "--output DIRECTORY", "where to place output documents and files") [v]:
     options at(#output) put(v)
 
 op parse!

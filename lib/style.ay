@@ -1,18 +1,18 @@
 module(Doodle::Styles):;
 
-macro (sub-style(sup))
+macro(sub-style(sup)):
   `(do:
       include(~sup)
 
-      : self ; post-process(d) :=
+      { self } post-process(d) :=
         when(~sup respond-to?(#post-process)):
           ~sup post-process(d)
       
-      : self ; scan(x, y) :=
+      { self } scan(x, y) :=
         when(~sup respond-to?(#scan)):
           ~sup scan(x, y)
       
-      : self ; pre-save(d, w) :=
+      { self } pre-save(d, w) :=
         when(~sup respond-to?(#pre-save)):
           ~sup pre-save(d, w))
 

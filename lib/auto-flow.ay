@@ -11,7 +11,7 @@ module(Doodle::AutoFlow):
     paragraphs?(str) := str include?("\n\n")
 
     empty?(p) :=
-      p children empty? || p children all? (p):
+      p children empty? || p children all? [p]:
         p match:
           Nokogiri::XML::Text ->
             p content strip empty?
@@ -25,7 +25,7 @@ module(Doodle::AutoFlow):
 
     define(flow(doc)):
       para = nil
-      doc children each (c):
+      doc children each [c]:
         condition:
           -- can't contain <p>; just recurse
           !(p-able?(doc)) ->
@@ -42,9 +42,9 @@ module(Doodle::AutoFlow):
 
           -- chunk of text containing multiple paragraphs
           split?(c) -> do:
-            c content each-line("") (p):
+            c content each-line("") [p]:
               para ||= Nokogiri::XML::Element new("p", doc)
-              para << p sub(r{\n\n*$}, "")
+              para << p sub(r"\n\n*$", "")
               when(p suffix?("\n\n")):
                 unless(empty?(para)):
                   c before(para)

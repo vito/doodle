@@ -8,7 +8,7 @@ module(Doodle::Styles):
     _section-reference(tag) :=
       unless(doc toc?):
         sec = doc down
-                select (d): d tag == tag value;
+                select [d]: d tag == tag value;
                 first at-css("body .section")
         sec at("id") put("section_" + tag value)
         insert(sec)
@@ -29,7 +29,7 @@ module(Doodle::Styles):
             href: "public/doodle.css"
           ])
 
-          ["jquery", "jquery.hotkeys", "tags", "main"] each (js):
+          ["jquery", "jquery.hotkeys", "tags", "main"] each [js]:
             script(#[
               type: "text/javascript"
               src: "public/" + js + ".js"
@@ -53,14 +53,14 @@ module(Doodle::Styles):
 
         when(toc):
           Doodle::Builder with(toc):
-            @doc down each (d):
+            @doc down each [d]:
               toc-leaf(self, d)
 
         document css("#content") wrap("<div id=\"main\"></div>")
 
       pre-save(_, out) := do:
         public = File expand-path("../public", _FILE)
-        Dir glob(public + "/*") each (f):
+        Dir glob(public + "/*") each [f]:
           FileUtils cp(f, out + "/public")
 
       scan(doc, (#title . as)) := do:
@@ -113,23 +113,23 @@ module(Doodle::Styles):
         unless(b doc down empty?):
           b h4("On this page:")
 
-          b ol toc (b):
-            b doc down each (s):
+          b ol toc [b]:
+            b doc down each [s]:
               toc-leaf(b, s)
 
         when(b doc up):
           b h4("Up one level:")
-          b ol toc (b):
+          b ol toc [b]:
             toc-leaf(b, b doc up)
 
       define(toc-leaf(b, d)):
-        b li (b):
+        b li [b]:
           b a(#[href: d url]):
             b build(d title)
 
           unless(d down empty?):
-            b ol (b):
-              d down each (s):
+            b ol [b]:
+              d down each [s]:
                 toc-leaf(b, s)
 
 
